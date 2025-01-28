@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-qv+8l)j0@1j15qqjyc-l6czs8ep=__b+k59fuon8zot!c(e05-'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -77,11 +78,11 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'TaskDatabase',         # 作成したデータベース名
-        'USER': 'postgres',             # PostgreSQLのユーザー名
-        'PASSWORD': 'y7bm2g',     # PostgreSQLのパスワード
-        'HOST': 'localhost',          # データベースのホスト（通常はlocalhost）
-        'PORT': '5432',               # PostgreSQLのデフォルトポート
+        'HOST': os.getenv('DB_HOST'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -122,6 +123,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATIC_ROOT = '/opt/render/project/src/static'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -138,5 +141,3 @@ LOGOUT_REDIRECT_URL = "/login/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
-DEBUG = True
