@@ -1,0 +1,158 @@
+@charset "utf-8";
+
+#calendar-title {
+    font-size: 25px;
+    font-weight: bold;
+    margin: 5px;
+}
+
+/* 全体のレイアウト設定 */
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* スクロールバーを非表示 */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-container {
+    flex-grow: 1; /* カレンダー部分を広げる */
+    display: flex;
+    justify-content: center; /* 水平方向に中央配置 */
+    align-items: center; /* 垂直方向に中央配置 */
+    height: calc(100vh - 200px); /* ヘッダーを考慮した高さ */
+}
+
+.calendar {
+    border-collapse: collapse;
+    width: 95%; /* カレンダー全体の幅を設定 */
+    height: 90%; /* カレンダー全体の高さを設定 */
+    max-width: 800px;
+    table-layout: fixed; /* セルの幅を均等にする */
+}
+
+/* セルと曜日部分のスタイル */
+.calendar th, .calendar td {
+    border: 1px solid #ccc;
+    vertical-align: top;
+}
+
+.calendar th {
+    height: 30px; /* 曜日部分の高さ */
+    text-align: center;
+    background-color: #f0f0f0; /* 背景色 */
+    font-weight: bold; /* 曜日を目立たせる */
+}
+
+.calendar td {
+    height: 50px; /* 日付セルの高さを固定 */
+    padding: 5px;
+    margin: 0px;
+    vertical-align: top;
+    overflow: hidden; /* 内容が溢れた場合に隠す */
+    position: relative;
+}
+
+/* 日付とタスクリストのスタイル */
+.calendar td .date {
+    font-size: 15px; 
+    font-weight: bold;
+}
+
+.calendar td ul {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none; /* リストスタイルを削除 */
+    font-size: 12px; /* タスクのフォントサイズ */
+    overflow-y: auto;
+}
+
+/* 日付リストのスタイル */
+.calendar td li {
+    display: flex; /* チェックボックスとテキストを横並びに */
+    align-items: center; /* 垂直方向に揃える */
+    margin-bottom: 0px; /* 項目間のスペース */
+}
+li span {
+    flex-grow: 1; /* テキストが均等に表示されるように */
+    align-items: center; /* 垂直方向に揃える */
+}
+
+/* 曜日や祝日のスタイル */
+td.sunday, .holiday {
+    background-color: #ffd9d9; /* 日曜と祝日の背景色 */
+    color: #cc0000;           /* 日曜と祝日の文字色 */
+}
+
+td.saturday {
+    color: blue;
+    background-color: #dae0ff; /* 土曜の背景色 */
+}
+
+.holiday-name {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+/* タスクフォームのスタイル */
+#task-form {
+    display: none;
+    position: fixed;
+    width: 150px;
+    height: 110px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 600px;
+}
+
+#task-form input, #task-form textarea {
+    height: 60px;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 0px;
+    border: 1px solid #ddd;
+}
+
+#task-form button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#task-form button:hover {
+    background-color: #0056b3;
+}
+
+#task-form #cancelButton {
+    padding: 8px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#task-form #cancelButton {
+    background-color: #9f9f9f;
+}
+
+.task-checkbox {
+    margin-right: 3px; /* チェックボックスとラベルの間にスペースを追加 */
+    margin-left: 0px;
+    width: 12px;
+    height: auto; /* チェックボックスの高さを調整（ブラウザ依存のズレ修正） */
+    top: 2px;
+    display: flex;
+    vertical-align: middle; /* チェックボックスをラベルと垂直方向に揃える */
+}
+.task-checkbox + span {
+    vertical-align: middle; /* ラベルをチェックボックスと揃える */
+}

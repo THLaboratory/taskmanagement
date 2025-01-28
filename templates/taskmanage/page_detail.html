@@ -1,0 +1,14 @@
+{% extends "base/taskmanage_base.html" %}
+{% block body %}
+
+<h2>{{ page.title }}</h2>
+<div>{{ page.page_date }}</div>
+<div>{{ page.body | linebreaksbr }}</div>
+{% if page.picture %}
+    <img src="{{ page.picture.url }}"/>
+{% endif %}
+<br>
+<a href="{% url 'taskmanage:page_update' page.id %}" class="button">編集</a>
+<a href="{% url 'taskmanage:page_delete' page.id %}" class="button">削除</a>
+
+{% endblock %}

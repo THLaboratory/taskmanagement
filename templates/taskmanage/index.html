@@ -1,0 +1,26 @@
+{% extends "base/taskmanage_base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'taskmanage/css/index.css' %}?v=1.0">
+{% endblock %}
+
+{% block body %}
+<div id="index">
+    <p>{{ datetime_now }}</p>
+    <!-- 上はviewsから取得 -->
+    <br>
+    <a href="{% url 'taskmanage:page_cal' %}" class="button">カレンダー</a>
+    <br>
+    <a href="{% url 'taskmanage:diary' %}" class="button">日記</a>
+    <br>
+    <a href="{% url 'taskmanage:page_create' %}" class="button">タスクを書く</a>
+    <br>
+    <a href="{% url 'taskmanage:page_list' %}" class="button">ページ一覧</a>
+    <br>
+</div>
+<form action="{% url 'accounts:logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">ログアウト</button>
+</form>
+{% endblock %}
