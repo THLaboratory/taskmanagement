@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,11 +78,11 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'taskdatabase',         # 作成したデータベース名
-        'USER': 't4skm4ster9',             # PostgreSQLのユーザー名
-        'PASSWORD': 'r5Gf8iVmS1o',     # PostgreSQLのパスワード
-        'HOST': 'my-database-2.cz0kyssyi425.ap-northeast-1.rds.amazonaws.com',          # データベースのホスト（通常はlocalhost）
-        'PORT': '5432',               # PostgreSQLのデフォルトポート
+        'HOST': os.getenv('DB_HOST'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
