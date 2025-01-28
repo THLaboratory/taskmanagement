@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -128,6 +128,13 @@ STATIC_ROOT = '/opt/render/project/src/staticfiles'
 STATICFILES_DIRS = [
     # os.path.join(BASE_DIR, 'static'),
 ]
+
+MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 一番上に追加
+    # その他のミドルウェア...
+]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
