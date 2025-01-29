@@ -74,16 +74,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-print("DB_NAME:", os.getenv('DB_NAME'))
-print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
-print("DB_USER:", os.getenv('DB_USER'))
-print("DB_HOST:", os.getenv('DB_HOST'))
-print("DB_PORT:", os.getenv('DB_PORT'))
-
-# print("Render 環境変数一覧:")
-# for key, value in os.environ.items():
-#     print(f"{key}: {value}")
+print("Render 環境変数一覧:")
+for key, value in os.environ.items():
+    print(f"{key}: {value}")
 
 env = environ.Env()
 
