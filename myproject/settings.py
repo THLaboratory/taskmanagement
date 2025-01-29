@@ -86,7 +86,7 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # for key, value in os.environ.items():
 #     print(f"{key}: {value}")
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # デバッグ用の出力を追加
 print("Django DATABASE_URL:", DATABASE_URL)
