@@ -80,10 +80,10 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.getenv('DB_HOST'),
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
     }
 }
@@ -128,16 +128,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 STATICFILES_DIRS = []
-
-MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 一番上に追加
-    # その他のミドルウェア...
-]
-
-MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # 一番上に追加
-    # その他のミドルウェア...
-]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
