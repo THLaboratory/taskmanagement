@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: taskmanagement
+    envVars:
+      - key: DATABASE_URL
+        sync: true
+      - key: DB_NAME
+        sync: true
+      - key: DB_USER
+        sync: true
+      - key: DB_PASSWORD
+        sync: true
+      - key: DB_HOST
+        sync: true
+      - key: DB_PORT
+        sync: true
+      - key: ALLOWED_HOSTS
+        sync: true
+      - key: DEBUG
+        sync: true
+      - key: DJANGO_SECRET_KEY
+        sync: true
+      - key: STATIC_ROOT
+        sync: true
+      - key: STATIC_URL
+        sync: true
