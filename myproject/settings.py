@@ -125,9 +125,7 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = '/opt/render/project/src/staticfiles'
 
-STATICFILES_DIRS = [
-    # os.path.join(BASE_DIR, 'static'),
-]
+STATICFILES_DIRS = []
 
 MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',  # 一番上に追加
