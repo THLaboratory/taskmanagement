@@ -77,8 +77,16 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-print("DB_NAME:", os.getenv('DB_NAME'))
-print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
+# print("DB_NAME:", os.getenv('DB_NAME'))
+# print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
+# print("DB_USER:", os.getenv('DB_USER'))
+# print("DB_USER:", os.getenv('DB_USER'))
+# print("DB_HOST:", os.getenv('DB_HOST'))
+# print("DB_PORT:", os.getenv('DB_PORT'))
+
+print("Render 環境変数一覧:")
+for key, value in os.environ.items():
+    print(f"{key}: {value}")
 
 DATABASES = {
     'default': {
