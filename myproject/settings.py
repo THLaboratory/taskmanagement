@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import environ
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,15 +75,28 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-print("Render 環境変数一覧:")
-for key, value in os.environ.items():
-    print(f"{key}: {value}")
+# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+# print("DB_NAME:", os.getenv('DB_NAME'))
+# print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
+# print("DB_USER:", os.getenv('DB_USER'))
+# print("DB_HOST:", os.getenv('DB_HOST'))
+# print("DB_PORT:", os.getenv('DB_PORT'))
 
-env = environ.Env()
+# print("Render 環境変数一覧:")
+# for key, value in os.environ.items():
+#     print(f"{key}: {value}")
 
-DATABASES = {
-    'default': env.db()
-}
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    raise Exception("DATABASE_URL is not set in environment variables")
+
+print("Django DATABASE_URL:", DATABASE_URL)
+print("Django DATABASES Config:", DATABASES)
 
 
 # Password validation
