@@ -132,6 +132,11 @@ MIDDLEWARE = [
     # その他のミドルウェア...
 ]
 
+MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 一番上に追加
+    # その他のミドルウェア...
+]
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
