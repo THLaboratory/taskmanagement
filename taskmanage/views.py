@@ -2,7 +2,7 @@ from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
@@ -16,6 +16,9 @@ import json
 
 
 # .は相対パス、自身と同じ階層にあるファイルを指す
+
+def home(request):
+    return HttpResponse("Welcome to the Home Page!")
 
 # 開発環境のみ CSRF を無効化
 def maybe_exempt(view_func):
