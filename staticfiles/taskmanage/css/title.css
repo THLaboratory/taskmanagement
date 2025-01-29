@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+#bigTitle {
+    display: flex;
+    height: 60px;
+    width: 100%;
+    background-size: cover;
+    background-color: #afeeee;
+    font-size: 30px;
+    text-align: center;
+    align-items: center;     /* 垂直方向の中央揃え */
+    justify-content: center;
+    font-weight: bold;
+    margin: 0;
+}
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* スクロールバーを非表示 */
+    height: 100%;
+}
