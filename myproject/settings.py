@@ -15,23 +15,26 @@ import os
 import environ
 import dj_database_url
 
+# 環境変数の設定
+env = environ.Env()
+
+# .env ファイルが存在すれば読み込む
+env_file = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(env_file):
+    env.read_env(env_file)
+
+print("DATABASE_URL from .env:", env("DATABASE_URL", default=None))
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-default-key')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -81,19 +84,15 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # print("DB_USER:", os.getenv('DB_USER'))
 # print("DB_HOST:", os.getenv('DB_HOST'))
 # print("DB_PORT:", os.getenv('DB_PORT'))
-
 # print("Render 環境変数一覧:")
 # for key, value in os.environ.items():
 #     print(f"{key}: {value}")
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# デバッグ用の出力を追加
-print("Django DATABASE_URL:", DATABASE_URL)
+DATABASE_URL = env("DATABASE_URL", default=None)
 
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
+        'default': env.db()
     }
 else:
     raise Exception("DATABASE_URL is not set in environment variables")
