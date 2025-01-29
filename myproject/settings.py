@@ -88,6 +88,9 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# デバッグ用の出力を追加
+print("Django DATABASE_URL:", DATABASE_URL)
+
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL)
@@ -95,7 +98,7 @@ if DATABASE_URL:
 else:
     raise Exception("DATABASE_URL is not set in environment variables")
 
-print("Django DATABASE_URL:", DATABASE_URL)
+# `DATABASES` の中身を確認
 print("Django DATABASES Config:", DATABASES)
 
 
