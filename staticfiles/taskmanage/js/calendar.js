@@ -8,6 +8,7 @@ function manageAll() {
 
     const SaveTasksURL = "/taskmanage/save-tasks/"
     const SaveValueChangeURL = "/taskmanage/save-value-change/"
+    const calendarDataURL = `/taskmanage/calendar-data/?year=${currentYear}&month=${currentMonth}`
 
     const taskFormForDesign = document.getElementById("taskFormForDesign");
     const taskForm = document.getElementById("taskForm");    
@@ -51,7 +52,7 @@ function manageAll() {
     // 下のURLで年月ごとのデータをjsonデータで取得、view.pyのCalendarDataViewクラスより
     // 構造 { 'year':~, 'month':~, 'calendar_days':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] }  
     async function getCalendarDataView(currentYear, currentMonth) {
-        const response = await fetch(`/taskmanage/calendar-data/?year=${currentYear}&month=${currentMonth}`);
+        const response = await fetch(calendarDataURL);
         const jsonResponse = await response.json();
         INFOs.dataFromDB = jsonResponse;        
         return INFOs
@@ -278,6 +279,7 @@ function manageAll() {
             console.log(JSON.stringify(formData));
         
             savingData(formData, SaveValueChangeURL);
+            countCheck();
         }        
 
         // 外側をクリックしたら非表示
@@ -338,12 +340,17 @@ function manageAll() {
         });
     }
 
-    // async function countCheck() {
-    //     await getCalendarDataView(currentYear, currentMonth);
-    //     const jsonData = INFOs.dataFromDB
+    async function countCheck() {
+        await getCalendarDataView(currentYear, currentMonth);
+        const jsonData = INFOs.dataFromDB
 
-    //     jsonData.true_count
-    // }
+        const trueCount = jsonData.true_count
+        const divElement = document.getElementById("countCheck")
+        console.log("divElement:", divElement);
+        console.log("trueCount:", trueCount);
+
+        divElement.textContent = trueCount
+    }
 
     // 初期ロード時にイベントリスナーを設定
     manageForm();

@@ -145,6 +145,8 @@ class CalendarView(LoginRequiredMixin, View, CalendarBassView):
 
 class CalendarDataView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
+        print("Raw GET data:", request.GET)  # 🔍 デバッグ用
+
         year = int(request.GET.get("year", datetime.today().year))
         month = int(request.GET.get("month", datetime.today().month))
 
