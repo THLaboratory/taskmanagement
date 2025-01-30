@@ -20,16 +20,17 @@ env = environ.Env()
 
 # .env ファイルが存在すれば読み込む
 env_file = os.path.join(os.path.dirname(__file__), '.env')
-print("Expected .env path:", env_file)
-print("Does .env exist?", os.path.exists(env_file))
 
 if os.path.exists(env_file):
     env.read_env(env_file)
 
-print("DATABASE_URL from .env:", env("DATABASE_URL", default=None))
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_ROOT = BASE_DIR / "media"
+
+MEDIA_URL = "/media/"
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -38,7 +39,15 @@ SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 # DEBUG = env.bool("DEBUG", default=False)
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+    },
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -92,17 +101,25 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 # for key, value in os.environ.items():
 #     print(f"{key}: {value}")
 
-DATABASE_URL = env("DATABASE_URL", default=None)
+render_env = os.getenv("DJANGO_ENV", "local")
+DATABASE_URL = env("DATABASE_URL", default="sqlite:///db.sqlite3")
 
-if DATABASE_URL:
+if render_env == "production":
     DATABASES = {
         'default': env.db()
     }
 else:
-    raise Exception("DATABASE_URL is not set in environment variables")
+    # ローカル開発環境（SQLite）
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
-# `DATABASES` の中身を確認
-print("Django DATABASES Config:", DATABASES)
+# デバッグ用ログ出力
+print("Using DATABASE:", DATABASES)
+print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -138,7 +155,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -154,10 +171,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-MEDIA_ROOT = BASE_DIR / "madia"
-
-MEDIA_URL = "/media/"
 
 LOGIN_REDIRECT_URL = "/taskmanage/"
 

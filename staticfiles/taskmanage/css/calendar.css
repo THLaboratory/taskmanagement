@@ -2,6 +2,7 @@
 
 /* 更新はCtrl + F5だと確実 */
 #calendar-title {
+    font-family: 'Noto Sans JP', sans-serif;
     font-size: 25px;
     font-weight: bold;
     margin: 5px;
