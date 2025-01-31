@@ -35,8 +35,6 @@ MEDIA_URL = "/media/"
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
-# DEBUG = env.bool("DEBUG", default=False)
-DEBUG = True
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
@@ -155,6 +153,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# DEBUG = env.bool("DEBUG", default=False)
+DEBUG = True
 
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
