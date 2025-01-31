@@ -176,3 +176,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = "/taskmanage/"
 
 LOGOUT_REDIRECT_URL = "/login/"
+
+print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
+print(f"TEMPLATES DIRS: {TEMPLATES[0]['DIRS']}")
+print(f"DEBUG: {DEBUG}")
+print(f"STATIC_ROOT: {STATIC_ROOT}")
