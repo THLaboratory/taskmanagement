@@ -134,7 +134,23 @@ class CalendarView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
         year = int(request.GET.get("year", datetime.today().year))
         month = int(request.GET.get("month", datetime.today().month))
-        view_type = request.GET.get("view", "default")  # 分岐処理
+
+        calendar_days = self.get_tasks_by_date(year, month)
+
+        # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
+        return render(request, 'taskmanage/calendar.html', {
+            'calendar_days': calendar_days,
+            'year': year,
+            'month': month,
+        })
+
+
+class CalendarDataView(LoginRequiredMixin, View, CalendarBassView):
+    def get(self, request):
+        print("Raw GET data:", request.GET)  # 🔍 デバッグ用
+
+        year = int(request.GET.get("year", datetime.today().year))
+        month = int(request.GET.get("month", datetime.today().month))
 
         # 年の範囲を制限
         if year < 1900 or year > 2200:
