@@ -1,0 +1,63 @@
+{% extends "base/taskmanage_base.html" %}
+{% load static %}
+
+{% block head %}
+<!-- CSSの読み込み -->
+<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v=1.0" defer>
+{% endblock %}
+
+<!-- パーセントかっこの条件文はdjangoによるもの -->
+
+{% block body %}
+<h1 id="calendar-title">{{ year }}年 {{ month }}月</h1>
+
+<div class="calendar-wrapper">
+    <!-- 見出し -->
+    <div class="calendar-header">
+        <div class="header-item">日付</div>
+        <div class="header-item">曜日</div>
+        <div class="header-item">勉強時間</div>
+    </div>
+    <!-- カレンダー本体 -->
+    <div class="calendar-container">
+        {% for day in calendar_days %}
+            {% if day.day %}                 
+                <div class="calendar-day                
+                    {% if day.is_holiday %}holiday{% endif %}
+                    {% if day.weekday == "日" %}sunday{% endif %}
+                    {% if day.weekday == "土" %}saturday{% endif %}  
+                ">
+                    {% if day.is_holiday %}
+                        <div class="date">{{ day.day }}<span> ({{ day.holiday_name }})</span></div>
+                    {% else %}
+                        <div class="date">{{ day.day }}</div>
+                    {% endif %}
+                        <div class="weekday">{{ day.weekday }}</div>                    
+                    <div type="text" class="time-input" name="time_{{ day.day }}"></div>
+                </div> 
+            {% endif %}               
+        {% endfor %}
+    </div>
+</div>
+
+<div id="timeFormForDesign">
+    <form id="timeForm">
+        {% csrf_token %}
+        <input type="hidden" id="timeDate" name="date">
+        <textarea id="timeInput" name="time" placeholder="時間を入力"></textarea>
+        <button type="submit">保存</button>
+        <button type="button" id="cancelButton">キャンセル</button>
+    </form>
+</div>
+
+<!-- JavaScriptの読み込み -->
+
+<script>
+    const djangoData = {
+        year: "{{ year }}",
+        month: "{{ month }}"
+    };
+</script>
+<script src="{% static 'taskmanage/js/time_record.js' %}?v=1" defer></script>
+
+{% endblock %}

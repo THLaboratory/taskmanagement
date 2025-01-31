@@ -14,7 +14,5 @@ urlpatterns = [
     path("calendar/", views.page_cal, name="page_cal"),
     path("save-tasks/", views.save_tasks, name="save_tasks"),
     path("save-value-change/", views.save_value_change, name="save_value_change"),
-    path('calendar-data/', views.calendar_data_view, name='calendar_data'),
     path('count-check/', views.count_check, name='count_check'),
-    path('diary/', views.diary, name='diary'),
 ]

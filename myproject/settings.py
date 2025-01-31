@@ -31,7 +31,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 MEDIA_URL = "/media/"
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -118,8 +117,8 @@ else:
     }
 
 # デバッグ用ログ出力
-print("Using DATABASE:", DATABASES)
-print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+# print("Using DATABASE:", DATABASES)
+# print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -162,8 +161,8 @@ if DEBUG:
 else:
     STATICFILES_DIRS = []
 
-print("STATICFILES_DIRS:", STATICFILES_DIRS)
-print("Expected static path:", os.path.join(BASE_DIR, 'static'))
+# print("STATICFILES_DIRS:", STATICFILES_DIRS)
+# print("Expected static path:", os.path.join(BASE_DIR, 'static'))
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

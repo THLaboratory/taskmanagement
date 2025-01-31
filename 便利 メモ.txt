@@ -1,0 +1,19 @@
+・サーバー起動
+cd myproject
+python manage.py runserver
+
+初期URL：http://127.0.0.1:8000/taskmanage/
+
+superuser ID: tiger
+PW: 1
+
+[サーバ上のデータ保存場所の例]
+http://127.0.0.1:8000/taskmanage/calendar-data/?year=2025&month=1
+
+[構文チェック]
+cd プロジェクト
+npm i -D babel-eslint eslint eslint-config-prettier eslint-loader eslint-plugin-prettier prettier
+
+[マイグレーション]
+python manage.py makemigrations
+python manage.py migrate
