@@ -4,13 +4,17 @@
 <html lang="ja">
     <head>
         <meta charset="utf-8" />
-        <title>タスク管理アプリ</title>
+        <title>Task Management</title>
         <link rel="stylesheet" href="{% static 'taskmanage/css/title.css' %}?v=1.0" defer>
         <link rel="stylesheet" href="{% static 'taskmanage/css/setting_menu.css' %}?v=1.0" defer>
+        <!-- Noto Sans JP用 -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
         {% block head %}{% endblock %}
     </head>
     <body>
-        <h1 id="bigTitle"><a href="{% url 'taskmanage:index' %}">タスク管理</a></h1>
+        <h1 id="bigTitle"><a href="{% url 'taskmanage:index' %}">Task Management</a></h1>
         {% block body %}
         {% endblock %}
         <div id="menu-icon">☰</div>
