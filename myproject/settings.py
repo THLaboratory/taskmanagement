@@ -159,13 +159,14 @@ DEBUG = True
 
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # print("STATICFILES_DIRS:", STATICFILES_DIRS)
 # print("Expected static path:", os.path.join(BASE_DIR, 'static'))
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
