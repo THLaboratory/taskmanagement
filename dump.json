@@ -1,0 +1,525 @@
+[
+{
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+        "name": "Can add log entry",
+        "content_type": 1,
+        "codename": "add_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+        "name": "Can change log entry",
+        "content_type": 1,
+        "codename": "change_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+        "name": "Can delete log entry",
+        "content_type": 1,
+        "codename": "delete_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+        "name": "Can view log entry",
+        "content_type": 1,
+        "codename": "view_logentry"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+        "name": "Can add permission",
+        "content_type": 2,
+        "codename": "add_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+        "name": "Can change permission",
+        "content_type": 2,
+        "codename": "change_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+        "name": "Can delete permission",
+        "content_type": 2,
+        "codename": "delete_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+        "name": "Can view permission",
+        "content_type": 2,
+        "codename": "view_permission"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+        "name": "Can add group",
+        "content_type": 3,
+        "codename": "add_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+        "name": "Can change group",
+        "content_type": 3,
+        "codename": "change_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+        "name": "Can delete group",
+        "content_type": 3,
+        "codename": "delete_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+        "name": "Can view group",
+        "content_type": 3,
+        "codename": "view_group"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+        "name": "Can add user",
+        "content_type": 4,
+        "codename": "add_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+        "name": "Can change user",
+        "content_type": 4,
+        "codename": "change_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+        "name": "Can delete user",
+        "content_type": 4,
+        "codename": "delete_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+        "name": "Can view user",
+        "content_type": 4,
+        "codename": "view_user"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+        "name": "Can add content type",
+        "content_type": 5,
+        "codename": "add_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+        "name": "Can change content type",
+        "content_type": 5,
+        "codename": "change_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+        "name": "Can delete content type",
+        "content_type": 5,
+        "codename": "delete_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+        "name": "Can view content type",
+        "content_type": 5,
+        "codename": "view_contenttype"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+        "name": "Can add session",
+        "content_type": 6,
+        "codename": "add_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+        "name": "Can change session",
+        "content_type": 6,
+        "codename": "change_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+        "name": "Can delete session",
+        "content_type": 6,
+        "codename": "delete_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+        "name": "Can view session",
+        "content_type": 6,
+        "codename": "view_session"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+        "name": "Can add page",
+        "content_type": 7,
+        "codename": "add_page"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+        "name": "Can change page",
+        "content_type": 7,
+        "codename": "change_page"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+        "name": "Can delete page",
+        "content_type": 7,
+        "codename": "delete_page"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+        "name": "Can view page",
+        "content_type": 7,
+        "codename": "view_page"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+        "name": "Can add task",
+        "content_type": 8,
+        "codename": "add_task"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+        "name": "Can change task",
+        "content_type": 8,
+        "codename": "change_task"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+        "name": "Can delete task",
+        "content_type": 8,
+        "codename": "delete_task"
+    }
+},
+{
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+        "name": "Can view task",
+        "content_type": 8,
+        "codename": "view_task"
+    }
+},
+{
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$MLkGLBO6H9gE3VRqTJpTT9$4E4kYkQY8Xgb0zLCIM4LxP4bxxh96Zgg7uHK+tGVsY8=",
+        "last_login": "2025-01-19T03:07:29.699Z",
+        "is_superuser": true,
+        "username": "tiger",
+        "first_name": "",
+        "last_name": "",
+        "email": "hard.tiger7@gmail.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2025-01-15T05:01:16.486Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+        "app_label": "admin",
+        "model": "logentry"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+        "app_label": "auth",
+        "model": "permission"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+        "app_label": "auth",
+        "model": "group"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+        "app_label": "auth",
+        "model": "user"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+        "app_label": "contenttypes",
+        "model": "contenttype"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+        "app_label": "sessions",
+        "model": "session"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+        "app_label": "taskmanage",
+        "model": "page"
+    }
+},
+{
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+        "app_label": "taskmanage",
+        "model": "task"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "m1yosot0eu9xw1bxvfftvf81jy0s2nr8",
+    "fields": {
+        "session_data": ".eJxVjMsOwiAQRf-FtSFMOzDg0r3fQHhMpWogKe3K-O_apAvd3nPOfQkftrX4rfPi5yzOAsTpd4shPbjuIN9DvTWZWl2XOcpdkQft8toyPy-H-3dQQi_fmt1oADRbQ2AQWamgyYWBlOVEgKQGjOOEzJEdGE1JMVoEPVo7MWXx_gCuVTbF:1tYeBf:354iCGA2dnxQoUD0z7puS9KaLC6APn0h67mK1mqr39s",
+        "expire_date": "2025-01-31T04:42:27.102Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "v9gn02wrp97djhzdfzuv96nex0ygbpg0",
+    "fields": {
+        "session_data": ".eJxVjMsOwiAQRf-FtSFMOzDg0r3fQHhMpWogKe3K-O_apAvd3nPOfQkftrX4rfPi5yzOAsTpd4shPbjuIN9DvTWZWl2XOcpdkQft8toyPy-H-3dQQi_fmt1oADRbQ2AQWamgyYWBlOVEgKQGjOOEzJEdGE1JMVoEPVo7MWXx_gCuVTbF:1tZLer:ziHMHjzXO1tIRNQ2ocseCwE4nIO1bW6eLRStlAvXpGQ",
+        "expire_date": "2025-02-02T03:07:29.705Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "y3b26c5xpti3ts9ggqdc7t5v5l6o446i",
+    "fields": {
+        "session_data": ".eJxVjMsOwiAQRf-FtSFMOzDg0r3fQHhMpWogKe3K-O_apAvd3nPOfQkftrX4rfPi5yzOAsTpd4shPbjuIN9DvTWZWl2XOcpdkQft8toyPy-H-3dQQi_fmt1oADRbQ2AQWamgyYWBlOVEgKQGjOOEzJEdGE1JMVoEPVo7MWXx_gCuVTbF:1tZ9oO:V3wiEoNaggHJED9tFvpoxzPDuONlabbJjwngEhODDeI",
+        "expire_date": "2025-02-01T14:28:32.682Z"
+    }
+},
+{
+    "model": "taskmanage.page",
+    "pk": "278ffb04-8da3-469c-a6a9-4ff14686b621",
+    "fields": {
+        "title": "おーい",
+        "body": "お茶",
+        "page_date": "2025-01-16",
+        "picture": "",
+        "created_at": "2025-01-16T08:07:49.205Z",
+        "appdated_at": "2025-01-16T08:07:49.205Z"
+    }
+},
+{
+    "model": "taskmanage.page",
+    "pk": "a8e6a1ba-a842-4e6c-93a9-3b8a92c0a73f",
+    "fields": {
+        "title": "ブラックボックス化",
+        "body": "気を付けよう",
+        "page_date": "2025-01-10",
+        "picture": "",
+        "created_at": "2025-01-16T08:32:25.606Z",
+        "appdated_at": "2025-01-16T08:32:25.606Z"
+    }
+},
+{
+    "model": "taskmanage.page",
+    "pk": "ab0385a6-0067-454a-b86c-7508abf0041e",
+    "fields": {
+        "title": "hello",
+        "body": "こんにちは",
+        "page_date": "2025-01-16",
+        "picture": "",
+        "created_at": "2025-01-16T08:07:39.111Z",
+        "appdated_at": "2025-01-16T08:07:39.111Z"
+    }
+},
+{
+    "model": "taskmanage.page",
+    "pk": "ba38b8e9-0f91-471e-997b-9af1b4d207cf",
+    "fields": {
+        "title": "webアプリ勉強",
+        "body": "勉強中",
+        "page_date": "2025-01-05",
+        "picture": "",
+        "created_at": "2025-01-15T04:56:55.936Z",
+        "appdated_at": "2025-01-15T04:56:55.936Z"
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 398,
+    "fields": {
+        "date": "2025-01-20",
+        "task": "9:30- ｺﾆｶﾐﾉﾙﾀ 面談",
+        "is_checked": true
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 407,
+    "fields": {
+        "date": "2025-01-22",
+        "task": "No.118 40Dy",
+        "is_checked": true
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 414,
+    "fields": {
+        "date": "2025-01-26",
+        "task": "9:25- TOEIC",
+        "is_checked": false
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 446,
+    "fields": {
+        "date": "2024-12-28",
+        "task": "帰省",
+        "is_checked": true
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 450,
+    "fields": {
+        "date": "2025-01-21",
+        "task": "No.117 20Y",
+        "is_checked": true
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 486,
+    "fields": {
+        "date": "2025-01-31",
+        "task": "報告会[M1,B4]",
+        "is_checked": false
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 501,
+    "fields": {
+        "date": "2025-02-21",
+        "task": "報告会[M1]",
+        "is_checked": false
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 570,
+    "fields": {
+        "date": "2025-01-25",
+        "task": "午前 水道修理",
+        "is_checked": true
+    }
+},
+{
+    "model": "taskmanage.task",
+    "pk": 584,
+    "fields": {
+        "date": "2025-01-24",
+        "task": "13:15- 基本情報",
+        "is_checked": false
+    }
+}
+]

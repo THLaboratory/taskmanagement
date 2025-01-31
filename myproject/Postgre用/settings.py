@@ -11,42 +11,24 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os
-import environ
-import dj_database_url
-
-# 環境変数の設定
-env = environ.Env()
-
-# .env ファイルが存在すれば読み込む
-env_file = os.path.join(os.path.dirname(__file__), '.env')
-
-if os.path.exists(env_file):
-    env.read_env(env_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_ROOT = BASE_DIR / "media"
-
-MEDIA_URL = "/media/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
-# DEBUG = env.bool("DEBUG", default=False)
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-qv+8l)j0@1j15qqjyc-l6czs8ep=__b+k59fuon8zot!c(e05-'
+
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = []
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-    },
-}
+
+# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,12 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'taskmanage',
+    'taskmanage.apps.TaskmanageConfig'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -68,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 
 ROOT_URLCONF = 'myproject.urls'
 
@@ -90,35 +70,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-# print("DB_NAME:", os.getenv('DB_NAME'))
-# print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
-# print("DB_USER:", os.getenv('DB_USER'))
-# print("DB_HOST:", os.getenv('DB_HOST'))
-# print("DB_PORT:", os.getenv('DB_PORT'))
-# print("Render 環境変数一覧:")
-# for key, value in os.environ.items():
-#     print(f"{key}: {value}")
 
-render_env = os.getenv("DJANGO_ENV", "local")
-DATABASE_URL = env("DATABASE_URL", default="sqlite:///db.sqlite3")
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-if render_env == "production":
-    DATABASES = {
-        'default': env.db()
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'TaskDatabase',         # 作成したデータベース名
+        'USER': 'postgres',             # PostgreSQLのユーザー名
+        'PASSWORD': 'y7bm2g',     # PostgreSQLのパスワード
+        'HOST': 'localhost',          # データベースのホスト（通常はlocalhost）
+        'PORT': '5432',               # PostgreSQLのデフォルトポート
     }
-else:
-    # ローカル開発環境（SQLite）
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+}
 
-# デバッグ用ログ出力
-# print("Using DATABASE:", DATABASES)
-# print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -138,6 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -149,28 +116,27 @@ USE_I18N = True
 
 USE_TZ = True
 
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-if DEBUG:
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-else:
-    STATICFILES_DIRS = []
-
-# print("STATICFILES_DIRS:", STATICFILES_DIRS)
-# print("Expected static path:", os.path.join(BASE_DIR, 'static'))
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+MEDIA_ROOT = BASE_DIR / "madia"
+
+MEDIA_URL = "/media/"
+
 LOGIN_REDIRECT_URL = "/taskmanage/"
 
 LOGOUT_REDIRECT_URL = "/login/"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+DEBUG = True

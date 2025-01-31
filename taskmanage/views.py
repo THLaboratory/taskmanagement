@@ -103,6 +103,7 @@ class CalendarBassView():
         days_in_month = calendar.monthrange(year, month)[1]
         first_weekday = calendar.monthrange(year, month)[0] + 1  # 開始曜日（+1で調整）
         jp_holidays = holidays.Japan(years=year)
+        weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
         # カレンダーの日付データを生成
         calendar_days = []
@@ -118,6 +119,7 @@ class CalendarBassView():
             holiday_name = jp_holidays.get(date.strftime("%Y-%m-%d"), None)
             calendar_days.append({
                 "day": day,
+                "weekday": weekdays[date.weekday()],
                 "is_holiday": is_holiday,
                 "holiday_name": holiday_name,
                 "tasks": tasks_by_date.get(day, []),
@@ -132,23 +134,7 @@ class CalendarView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
         year = int(request.GET.get("year", datetime.today().year))
         month = int(request.GET.get("month", datetime.today().month))
-
-        calendar_days = self.get_tasks_by_date(year, month)
-
-        # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
-        return render(request, 'taskmanage/calendar.html', {
-            'calendar_days': calendar_days,
-            'year': year,
-            'month': month,
-        })
-
-
-class CalendarDataView(LoginRequiredMixin, View, CalendarBassView):
-    def get(self, request):
-        print("Raw GET data:", request.GET)  # 🔍 デバッグ用
-
-        year = int(request.GET.get("year", datetime.today().year))
-        month = int(request.GET.get("month", datetime.today().month))
+        view_type = request.GET.get("view", "default")  # 分岐処理
 
         # 年の範囲を制限
         if year < 1900 or year > 2200:
@@ -156,11 +142,27 @@ class CalendarDataView(LoginRequiredMixin, View, CalendarBassView):
 
         calendar_days = self.get_tasks_by_date(year, month)
 
-        return JsonResponse({
-            "calendar_days": calendar_days,
-            "year": year,
-            "month": month,
-        })
+        # 分岐
+        if view_type == "tasks-json":
+            return JsonResponse({
+                "calendar_days": calendar_days,
+                "year": year,
+                "month": month,
+            })
+        elif view_type == "time-record":
+            return render(request, 'taskmanage/time_record.html', {
+                'calendar_days': calendar_days,
+                'year': year,
+                'month': month,
+            })
+        else:
+            print("view_typeの指定がありませんでした")
+            # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
+            return render(request, 'taskmanage/calendar.html', {
+                'calendar_days': calendar_days,
+                'year': year,
+                'month': month,
+            })
 
 
 # save()でデータベースに保存、関数名はpost、URL：save-tasks
@@ -199,8 +201,6 @@ class SaveTasks(LoginRequiredMixin, View):
                         selected_data = Task.objects.filter(date=DATE, task=t).first()
                         if selected_data:
                             is_checked = selected_data.is_checked
-                            print("------is_checked------")
-                            print(is_checked)
                         tasks.append(Task(date=DATE, task=t, is_checked=is_checked))
 
                     # bulk_create(): 複数データを一気に保存
@@ -247,12 +247,6 @@ class CountCheck(LoginRequiredMixin, View):
         return JsonResponse({'true_count': true_count})
         
 
-@method_decorator(csrf_exempt, name='dispatch')
-class Diary(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, "taskmanage/diary.html")
-
-
 index = IndexView.as_view()
 page_create = PageCreateView.as_view()
 page_list = PageListView.as_view()
@@ -262,6 +256,4 @@ page_delete = PageDeleteView.as_view()
 page_cal = CalendarView.as_view()
 save_tasks = SaveTasks.as_view()
 save_value_change = SaveValueChange.as_view()
-calendar_data_view = CalendarDataView.as_view()
 count_check = CountCheck.as_view()
-diary = Diary.as_view()
