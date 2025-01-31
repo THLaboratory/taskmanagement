@@ -3,7 +3,7 @@
 
 {% block head %}
 <!-- CSSの読み込み -->
-<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v=1.0" defer>
+<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v={{ STATIC_VERSION }}" defer>
 {% endblock %}
 
 <!-- パーセントかっこの条件文はdjangoによるもの -->
@@ -58,6 +58,6 @@
         month: "{{ month }}"
     };
 </script>
-<script src="{% static 'taskmanage/js/time_record.js' %}?v=1" defer></script>
+<script src="{% static 'taskmanage/js/time_record.js' %}?v={{ STATIC_VERSION }}" defer></script>
 
 {% endblock %}
