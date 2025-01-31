@@ -158,7 +158,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEBUG = True
 
 if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static/taskmanage/']
+    STATICFILES_DIRS = [BASE_DIR / 'static/taskmanage']
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []
