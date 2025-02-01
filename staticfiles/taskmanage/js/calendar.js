@@ -1,14 +1,11 @@
 // DOMが完全に読み込まれてから実行
-document.addEventListener("DOMContentLoaded", manageAll);
-
-function manageAll() {
+document.addEventListener("DOMContentLoaded", () => {
     let currentYear = djangoData.year;
     let currentMonth = djangoData.month;
     let isLoading = false;
 
     const SaveTasksURL = "/taskmanage/save-tasks/"
     const SaveValueChangeURL = "/taskmanage/save-value-change/"
-    const calendarDataURL = `/taskmanage/calendar-data/?year=${currentYear}&month=${currentMonth}`
 
     const taskFormForDesign = document.getElementById("taskFormForDesign");
     const taskForm = document.getElementById("taskForm");    
@@ -49,11 +46,16 @@ function manageAll() {
         isLoading = false;
     });
 
-    // 下のURLで年月ごとのデータをjsonデータで取得、view.pyのCalendarDataViewクラスより
-    // 構造 { 'year':~, 'month':~, 'calendar_days':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] }  
-    async function getCalendarDataView(currentYear, currentMonth) {
-        const response = await fetch(calendarDataURL);
+    // 下のURLで年月ごとのデータをjsonデータで取得、views.pyのCalendarViewクラスより
+    // 構造 { 'year':~, 'month':~, 'calendar_days':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
+    // view_type："tasks-render"、"tasks-json"、"t"ime-record"
+    async function getCalendarDataView(view_type) {
+        const cache_buster = new Date().getTime();
+        const calendarDataURL = `/taskmanage/calendar/?year=${currentYear}&month=${currentMonth}&view=${view_type}&_=${cache_buster}`
+
+        const response = await fetch(calendarDataURL, { cache: "no-store" });
         const jsonResponse = await response.json();
+        console.log("jsonResponse:", jsonResponse)
         INFOs.dataFromDB = jsonResponse;        
         return INFOs
     }
@@ -62,7 +64,8 @@ function manageAll() {
     // 非同期関数はawaitを使わないと戻り値を取得できない
     async function updateCalendar(currentYear, currentMonth) {
     // async：非同期を含む、fetch、response.json()：非同期
-        await getCalendarDataView(currentYear, currentMonth);
+        await getCalendarDataView("tasks-json");
+
         const jsonData = INFOs.dataFromDB
 
         const calendarTable = document.querySelector(".calendar tbody");
@@ -71,7 +74,7 @@ function manageAll() {
 
         console.log("jsonData:", jsonData)
 
-        calendarTitle.textContent = `${jsonData.year}年 ${jsonData.month}月`; // カレンダーのタイトルを更新       
+        calendarTitle.textContent = `${currentYear}年 ${currentMonth}月`; // カレンダーのタイトルを更新
         calendarTable.innerHTML = "";  // カレンダーの内容をクリア        
 
         let row = document.createElement("tr");
@@ -252,7 +255,7 @@ function manageAll() {
 
         // チェックボックスのクリック状況保存
         async function manageCheckbox(event) {
-            await getCalendarDataView(currentYear, currentMonth);
+            await getCalendarDataView("tasks-json");
             const jsonData = INFOs.dataFromDB;
             console.log("jsonData:", jsonData);         
 
@@ -302,7 +305,7 @@ function manageAll() {
         tdElement.forEach(tdElement => {
             tdElement.addEventListener("dblclick", createForm);
 
-            function createForm(action) {
+            function createForm(event) {
                 const dayElement = this.querySelector(".date");
                 if (!dayElement) return;
 
@@ -312,8 +315,6 @@ function manageAll() {
 
                 const existingTasks = this.querySelectorAll("ul li");
                 const taskInput = document.getElementById("taskInput");
-
-                const rect = this.getBoundingClientRect();
                 
                 console.log("Selected date:", formattedDate);                
 
@@ -327,21 +328,24 @@ function manageAll() {
                     taskInput.value = ""; // タスクがない場合は空
                 }
 
+                // viewport(画面)の端から要素までの距離を取得できる
+                const rect = this.getBoundingClientRect();
+
                 // フォームをクリックされた日付の近くに表示                
                 taskFormForDesign.style.left = `${rect.left}px`;
                 taskFormForDesign.style.top = `${rect.bottom + window.scrollY}px`;
-                taskFormForDesign.style.position = "absolute";
                 taskFormForDesign.style.display = "block";
 
                 taskInput.focus();
 
-                action.stopPropagation();
+                event.stopPropagation();  // イベントの伝播を防止
             }
         });
     }
 
+    // タスク数集計（開発中）
     async function countCheck() {
-        await getCalendarDataView(currentYear, currentMonth);
+        await getCalendarDataView("tasks-json");
         const jsonData = INFOs.dataFromDB
 
         const trueCount = jsonData.true_count
@@ -354,4 +358,4 @@ function manageAll() {
 
     // 初期ロード時にイベントリスナーを設定
     manageForm();
-}
+});

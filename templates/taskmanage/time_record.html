@@ -20,20 +20,22 @@
     </div>
     <!-- カレンダー本体 -->
     <div class="calendar-container">
-        {% for day in calendar_days %}
-            {% if day.day %}                 
+        {% for info in day_info_and_records %}
+            {% if info.day %}                 
                 <div class="calendar-day                
-                    {% if day.is_holiday %}holiday{% endif %}
-                    {% if day.weekday == "日" %}sunday{% endif %}
-                    {% if day.weekday == "土" %}saturday{% endif %}  
+                    {% if info.is_holiday %}holiday{% endif %}
+                    {% if info.weekday == "日" %}sunday{% endif %}
+                    {% if info.weekday == "土" %}saturday{% endif %}  
                 ">
-                    {% if day.is_holiday %}
-                        <div class="date">{{ day.day }}<span> ({{ day.holiday_name }})</span></div>
+                    {% if info.is_holiday %}
+                        <div class="date">{{ info.day }}<span> ({{ info.holiday_name }})</span></div>
                     {% else %}
-                        <div class="date">{{ day.day }}</div>
+                        <div class="date">{{ info.day }}</div>
                     {% endif %}
-                        <div class="weekday">{{ day.weekday }}</div>                    
-                    <div type="text" class="time-input" name="time_{{ day.day }}"></div>
+                        <div class="weekday">{{ info.weekday }}</div>                    
+                    <div type="text" class="time-input" name="time_{{ info.day }}">
+                        {{ info.study_time }}
+                    </div>
                 </div> 
             {% endif %}               
         {% endfor %}
@@ -43,8 +45,8 @@
 <div id="timeFormForDesign">
     <form id="timeForm">
         {% csrf_token %}
-        <input type="hidden" id="timeDate" name="date">
-        <textarea id="timeInput" name="time" placeholder="時間を入力"></textarea>
+        <input type="hidden" id="timeFormDate" name="date">
+        <textarea id="timeInput" name="study-time" placeholder="時間を入力"></textarea>
         <button type="submit">保存</button>
         <button type="button" id="cancelButton">キャンセル</button>
     </form>
@@ -54,6 +56,7 @@
 
 <script>
     const djangoData = {
+        day_info_and_records: "{{day_info_and_records}}",
         year: "{{ year }}",
         month: "{{ month }}"
     };

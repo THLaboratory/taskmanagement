@@ -3,7 +3,7 @@
 /* ハンバーガーメニュー */
 #menu-icon {
   position: fixed;
-  top: 10px;
+  top: 5px;
   left: 20px;
   font-size: 24px;
   cursor: pointer;
