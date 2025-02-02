@@ -88,16 +88,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-# print("DB_NAME:", os.getenv('DB_NAME'))
-# print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
-# print("DB_USER:", os.getenv('DB_USER'))
-# print("DB_HOST:", os.getenv('DB_HOST'))
-# print("DB_PORT:", os.getenv('DB_PORT'))
-# print("Render 環境変数一覧:")
-# for key, value in os.environ.items():
-#     print(f"{key}: {value}")
-
 render_env = os.getenv("DJANGO_ENV", "local")
 DATABASE_URL = env("DATABASE_URL", default="sqlite:///db.sqlite3")
 
@@ -158,7 +148,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEBUG = True
 
 if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static/taskmanage']
+    STATICFILES_DIRS = [BASE_DIR / 'static']  # 昨日は'static/taskmanage'で動いたのに、今日は'static'じゃないとダメ。なぜ？
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []

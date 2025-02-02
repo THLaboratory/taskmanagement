@@ -9,36 +9,52 @@
 <!-- パーセントかっこの条件文はdjangoによるもの -->
 
 {% block body %}
-<h1 id="calendar-title">{{ year }}年 {{ month }}月</h1>
+<h1 id="calendar-title">
+    <button id="prevMonth">◀</button>
+    <span id="currentMonth">{{ year }}年 {{ month }}月</span>
+    <button id="nextMonth">▶</button>
+</h1>
 
-<div class="calendar-wrapper">
-    <!-- 見出し -->
-    <div class="calendar-header">
-        <div class="header-item">日付</div>
-        <div class="header-item">曜日</div>
-        <div class="header-item">勉強時間</div>
+<div class="content-wrapper">
+    <div class="calendar-wrapper">
+        <!-- 見出し -->
+        <div class="calendar-header">
+            <div class="header-item">日付</div>
+            <div class="header-item">曜日</div>
+            <div class="header-item">勉強時間</div>
+        </div>
+        <!-- カレンダー本体 -->
+        <div class="calendar-container">
+            {% for info in day_info_and_records %}
+                {% if info.day %}                 
+                    <div class="calendar-day                
+                        {% if info.is_holiday %}holiday{% endif %}
+                        {% if info.weekday == "日" %}sunday{% endif %}
+                        {% if info.weekday == "土" %}saturday{% endif %}  
+                    ">
+                        {% if info.is_holiday %}
+                            <div class="date">{{ info.day }}<span> ({{ info.holiday_name }})</span></div>
+                        {% else %}
+                            <div class="date">{{ info.day }}</div>
+                        {% endif %}
+                            <div class="weekday">{{ info.weekday }}</div>                    
+                        <div type="text" class="time-input" name="time_{{ info.day }}">
+                            {{ info.study_time }}
+                        </div>
+                    </div> 
+                {% endif %}               
+            {% endfor %}
+        </div>
     </div>
-    <!-- カレンダー本体 -->
-    <div class="calendar-container">
-        {% for info in day_info_and_records %}
-            {% if info.day %}                 
-                <div class="calendar-day                
-                    {% if info.is_holiday %}holiday{% endif %}
-                    {% if info.weekday == "日" %}sunday{% endif %}
-                    {% if info.weekday == "土" %}saturday{% endif %}  
-                ">
-                    {% if info.is_holiday %}
-                        <div class="date">{{ info.day }}<span> ({{ info.holiday_name }})</span></div>
-                    {% else %}
-                        <div class="date">{{ info.day }}</div>
-                    {% endif %}
-                        <div class="weekday">{{ info.weekday }}</div>                    
-                    <div type="text" class="time-input" name="time_{{ info.day }}">
-                        {{ info.study_time }}
-                    </div>
-                </div> 
-            {% endif %}               
-        {% endfor %}
+
+    <!-- グラフ部分 -->
+    <div class="chart-container" id="studyTimeChart-container">
+        <div class="graphTitle">勉強時間の推移</div>
+        <canvas id="studyTimeChart"></canvas>
+    </div>
+    <div class="chart-container" id="totalStudyTimeChart-container">
+        <div class="graphTitle">累計勉強時間の推移</div>
+        <canvas id="totalStudyTimeChart"></canvas>
     </div>
 </div>
 
@@ -52,15 +68,14 @@
     </form>
 </div>
 
-<!-- JavaScriptの読み込み -->
-
+<!-- JavaScriptの読み込み、jsonは|safeをつけないと正常に渡されない -->
 <script>
     const djangoData = {
-        day_info_and_records: "{{day_info_and_records}}",
         year: "{{ year }}",
         month: "{{ month }}"
     };
 </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'taskmanage/js/time_record.js' %}?v={{ STATIC_VERSION }}" defer></script>
 
 {% endblock %}

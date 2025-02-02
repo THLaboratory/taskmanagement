@@ -66,8 +66,6 @@ class CalendarBassView():
     def _get_tasks_by_date(self, year, month):
         """DBから指定された年月のタスクを全て取得"""
         day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
-        print("day_info")
-        print(day_info)
         
         tasks = Task.objects.filter(date__year=year, date__month=month)
         tasks_by_date = {}  # 構造 {day, ["task":~, "is_checked":~]}
@@ -83,8 +81,6 @@ class CalendarBassView():
             i["tasks"] = tasks_by_date.get(day, [])  # dayが一致するタスクをセット
 
         day_info_and_tasks = day_info
-        print("day_info_and_tasks")
-        print(day_info_and_tasks)
 
         return day_info_and_tasks
 
@@ -206,6 +202,7 @@ class CountCheck(LoginRequiredMixin, View):
 @method_decorator(csrf_exempt, name='dispatch')
 class RecordsView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
+        # ?year=~&month=~ のパラメータを取得
         year = int(request.GET.get("year", datetime.today().year))
         month = int(request.GET.get("month", datetime.today().month))
         view_type = request.GET.get("view", "default")  # 分岐処理
@@ -228,7 +225,6 @@ class RecordsView(LoginRequiredMixin, View, CalendarBassView):
                 'year': year,
                 'month': month,
             })
-
     
     def _get_study_time(self, year, month):
         """DBから指定された年月のstudy_timeを全て取得"""
@@ -248,8 +244,6 @@ class RecordsView(LoginRequiredMixin, View, CalendarBassView):
             i["study_time"] = records_by_date.get(day, 0)
 
         day_info_and_records = day_info
-        print("day_info_and_records")
-        print(day_info_and_records)
 
         return day_info_and_records
 
