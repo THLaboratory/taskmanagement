@@ -1,0 +1,82 @@
+{% extends "base/taskmanage_base.html" %}
+{% load static %}
+
+{% block head %}
+<!-- CSSの読み込み -->
+<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v={{ STATIC_VERSION }}" defer>
+{% endblock %}
+
+<!-- パーセントかっこの条件文はdjangoによるもの -->
+
+{% block body %}
+<h1 id="calendar-title">
+    <button id="prevMonth">◀</button>
+    <span id="currentMonth">{{ year }}年 {{ month }}月</span>
+    <button id="nextMonth">▶</button>
+</h1>
+
+<div class="content-wrapper">
+    <div class="calendar-wrapper">
+        <!-- 見出し -->
+        <div class="calendar-header">
+            <div class="header-item">日付</div>
+            <div class="header-item">曜日</div>
+            <div class="header-item">勉強時間</div>
+        </div>
+        <!-- カレンダー本体 -->
+        <div class="calendar-container">
+            {% for info in day_info_and_records %}
+                {% if info.day %}                 
+                    <div class="calendar-day                
+                        {% if info.is_holiday %}holiday{% endif %}
+                        {% if info.weekday == "日" %}sunday{% endif %}
+                        {% if info.weekday == "土" %}saturday{% endif %}  
+                    ">
+                        {% if info.is_holiday %}
+                            <div class="date">{{ info.day }}<span> ({{ info.holiday_name }})</span></div>
+                        {% else %}
+                            <div class="date">{{ info.day }}</div>
+                        {% endif %}
+                            <div class="weekday">{{ info.weekday }}</div>                    
+                        <div type="text" class="time-input {% if info.study_time == '00:00' %}
+                            time-zero{% endif %}" name="time_{{ info.day }}">
+                            {{ info.study_time }}
+                        </div>
+                    </div> 
+                {% endif %}               
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- グラフ部分 -->
+    <div class="chart-container" id="studyTimeChart-container">
+        <div class="graphTitle">勉強時間の推移</div>
+        <canvas id="studyTimeChart"></canvas>
+    </div>
+    <div class="chart-container" id="totalStudyTimeChart-container">
+        <div class="graphTitle">累計勉強時間の推移</div>
+        <canvas id="totalStudyTimeChart"></canvas>
+    </div>
+</div>
+
+<div id="timeFormForDesign">
+    <form id="timeForm">
+        {% csrf_token %}
+        <input type="hidden" id="timeFormDate" name="date">
+        <textarea id="timeInput" name="study-time" placeholder="時間を入力"></textarea>
+        <button type="submit">保存</button>
+        <button type="button" id="cancelButton">キャンセル</button>
+    </form>
+</div>
+
+<!-- JavaScriptの読み込み、jsonは|safeをつけないと正常に渡されない -->
+<script>
+    const djangoData = {
+        year: "{{ year }}",
+        month: "{{ month }}"
+    };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'taskmanage/js/time_record.js' %}?v={{ STATIC_VERSION }}" defer></script>
+
+{% endblock %}

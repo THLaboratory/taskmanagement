@@ -47,8 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 下のURLで年月ごとのデータをjsonデータで取得、views.pyのCalendarViewクラスより
-    // 構造 { 'year':~, 'month':~, 'calendar_days':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
-    // view_type："tasks-render"、"tasks-json"、"t"ime-record"
+    // 構造 { 'year':~, 'month':~, 'day_info_and_tasks':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
+    // view_type："tasks-json"、None
     async function getCalendarDataView(view_type) {
         const cache_buster = new Date().getTime();
         const calendarDataURL = `/taskmanage/calendar/?year=${currentYear}&month=${currentMonth}&view=${view_type}&_=${cache_buster}`
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
         calendarTable.innerHTML = "";  // カレンダーの内容をクリア        
 
         let row = document.createElement("tr");
-        jsonData.calendar_days.forEach((jsonData, index) => {
+        jsonData.day_info_and_tasks.forEach((jsonData, index) => {
             if (index % 7 === 0 && index !== 0) {
                 calendarTable.appendChild(row);
                 row = document.createElement("tr");
@@ -142,18 +142,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // ◆入力されたタスクをリスト化、DBに保存（submit:保存ボタン）◆
     // formDataの構造は {"date":~~, "tasks":[{"task":~~, "is_checked":~~}]}
     taskForm.addEventListener("submit", taskFormSubmit);
-
     async function taskFormSubmit(event) {
         event.preventDefault();  // デフォルトのフォーム送信動作をキャンセル
 
-        // 最終的にDBに送信するのはformData2、thisはid: taskForm（入力フォーム）の要素すべて（submitで受け取ったid=taskForm部分）
+        // 最終的にDBに送信するのはconfirmedFormData、thisはid: taskForm（入力フォーム）の要素すべて（submitで受け取ったid=taskForm部分）
         // 「FormData」はjsの組込メソッド。構造は(htmlのname属性：value)
-        const formData = new FormData(this);
+        const formData = new FormData(this);   // newによってインスタンス化
 
         const taskDate = formData.get("date");
         const targetDate = new Date(taskDate); // 文字列から日付に変換（ただし、形式は以下 Thu Jan 02 2025 09:00:00 GMT+0900 (GMT+09:00)）
-        const itsDay = targetDate.getDate();  // getDate(): 日だけを返す
-        const formattedDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(itsDay).padStart(2, '0')}`;
+        const onlyDay = targetDate.getDate();  // getDate(): 日だけを返す
+        console.log("onlyDay:", onlyDay)
+        const formattedDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(onlyDay).padStart(2, '0')}`;
 
         const taskContent = formData.get("task");
 
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // htmlからチェック状況の把握
         const divElements = Array.from(document.querySelectorAll('.date'));
         divElements.forEach(function(divElement) {
-            if (divElement.textContent == itsDay) {                               
+            if (divElement.textContent == onlyDay) {                               
                 const ulElement = divElement.nextElementSibling;
                 if (ulElement !== null) {
                     console.log("ulElement:", ulElement);
@@ -194,19 +194,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }         
         });
         
-        const formData2 = {
+        const confirmedFormData = {
             "date": formattedDate,
             "task": taskContent,
             "is_checked": judgeCheck
         };
-        console.log(JSON.stringify(formData2))
+        console.log(JSON.stringify(confirmedFormData));
 
-        isLoading = true; 
-        await savingData(formData2, SaveTasksURL); 
+        isLoading = true;
+        await savingData(confirmedFormData, SaveTasksURL);
         await updateCalendar(currentYear, currentMonth);
-        isLoading = false;  
+        isLoading = false;
         
-        taskFormForDesign.style.display = "none";   
+        taskFormForDesign.style.display = "none";
     }
 
     // ◆タスクが無い日付に新しく登録、<ul>以降◆
@@ -248,9 +248,50 @@ document.addEventListener("DOMContentLoaded", () => {
     function manageForm() {
         const checkboxes = document.querySelectorAll('input[type="checkbox"]');
         const tdElement = document.querySelectorAll(".calendar td")
-        
+
+        // チェックボックス変化
         checkboxes.forEach(theCheckbox => {
             theCheckbox.addEventListener('change', manageCheckbox);
+        });
+
+        // 日付セルをクリックでフォーム生成
+        tdElement.forEach(tdElement => {
+            tdElement.addEventListener("dblclick", createForm);
+
+            function createForm(event) {
+                event.stopPropagation();  // イベントの伝播を防止
+
+                const dayElement = this.querySelector(".date");
+                if (!dayElement) return;
+
+                const day = dayElement.textContent.trim();
+                const formattedDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                const existingTasks = this.querySelectorAll("ul li");
+                const taskInput = document.getElementById("taskInput");
+                
+                console.log("Selected date:", formattedDate);                
+
+                // 既存のタスクを取得してフォームに表示
+                if (existingTasks.length > 0) {
+                    taskInput.value = Array.from(existingTasks)
+                        .map(task => task.textContent.trim())
+                        .filter(task => task !== "")
+                        .join("\n");
+                } else {
+                    taskInput.value = ""; // タスクがない場合は空
+                }
+
+                // viewport(画面)の端から要素までの距離を取得できる
+                const rect = this.getBoundingClientRect();
+
+                // フォームをクリックされた日付の近くに表示                
+                taskFormForDesign.style.left = `${rect.left}px`;
+                taskFormForDesign.style.top = `${rect.bottom + window.scrollY}px`;
+                taskFormForDesign.style.display = "block";
+
+                taskInput.focus();
+            }
         });
 
         // チェックボックスのクリック状況保存
@@ -300,47 +341,6 @@ document.addEventListener("DOMContentLoaded", () => {
             taskFormForDesign.style.display = "none"; // フォームを非表示
         }
         cancelButton.addEventListener("click", cancelForm);
-        
-        // 日付セルをクリックで生成        
-        tdElement.forEach(tdElement => {
-            tdElement.addEventListener("dblclick", createForm);
-
-            function createForm(event) {
-                const dayElement = this.querySelector(".date");
-                if (!dayElement) return;
-
-                const day = dayElement.textContent.trim();
-                const formattedDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                document.getElementById("taskDate").value = formattedDate;
-
-                const existingTasks = this.querySelectorAll("ul li");
-                const taskInput = document.getElementById("taskInput");
-                
-                console.log("Selected date:", formattedDate);                
-
-                // 既存のタスクを取得してフォームに表示
-                if (existingTasks.length > 0) {
-                    taskInput.value = Array.from(existingTasks)
-                        .map(task => task.textContent.trim())
-                        .filter(task => task !== "")
-                        .join("\n");
-                } else {
-                    taskInput.value = ""; // タスクがない場合は空
-                }
-
-                // viewport(画面)の端から要素までの距離を取得できる
-                const rect = this.getBoundingClientRect();
-
-                // フォームをクリックされた日付の近くに表示                
-                taskFormForDesign.style.left = `${rect.left}px`;
-                taskFormForDesign.style.top = `${rect.bottom + window.scrollY}px`;
-                taskFormForDesign.style.display = "block";
-
-                taskInput.focus();
-
-                event.stopPropagation();  // イベントの伝播を防止
-            }
-        });
     }
 
     // タスク数集計（開発中）

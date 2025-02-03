@@ -31,13 +31,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 MEDIA_URL = "/media/"
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
-# DEBUG = env.bool("DEBUG", default=False)
-DEBUG = True
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
@@ -91,16 +88,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
-# print("DATABASE_URL:", os.getenv("DATABASE_URL"))
-# print("DB_NAME:", os.getenv('DB_NAME'))
-# print("DB_PASSWORD:", os.getenv('DB_PASSWORD'))
-# print("DB_USER:", os.getenv('DB_USER'))
-# print("DB_HOST:", os.getenv('DB_HOST'))
-# print("DB_PORT:", os.getenv('DB_PORT'))
-# print("Render 環境変数一覧:")
-# for key, value in os.environ.items():
-#     print(f"{key}: {value}")
-
 render_env = os.getenv("DJANGO_ENV", "local")
 DATABASE_URL = env("DATABASE_URL", default="sqlite:///db.sqlite3")
 
@@ -118,8 +105,8 @@ else:
     }
 
 # デバッグ用ログ出力
-print("Using DATABASE:", DATABASES)
-print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+# print("Using DATABASE:", DATABASES)
+# print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -157,15 +144,19 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# DEBUG = env.bool("DEBUG", default=False)
+DEBUG = True
+
 if DEBUG:
-    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+    STATICFILES_DIRS = [BASE_DIR / 'static']  # 昨日は'static/taskmanage'で動いたのに、今日は'static'じゃないとダメ。なぜ？
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-print("STATICFILES_DIRS:", STATICFILES_DIRS)
-print("Expected static path:", os.path.join(BASE_DIR, 'static'))
+# print("STATICFILES_DIRS:", STATICFILES_DIRS)
+# print("Expected static path:", os.path.join(BASE_DIR, 'static'))
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -175,3 +166,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = "/taskmanage/"
 
 LOGOUT_REDIRECT_URL = "/login/"
+
+print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
+print(f"TEMPLATES DIRS: {TEMPLATES[0]['DIRS']}")
+print(f"DEBUG: {DEBUG}")
+print(f"STATIC_ROOT: {STATIC_ROOT}")

@@ -6,9 +6,8 @@ from django.http import JsonResponse, HttpResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
-from .forms import PageForm
-from .models import Page, Task
-from datetime import datetime
+from .models import Task, Record
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import calendar
 import holidays
@@ -34,64 +33,40 @@ class IndexView(LoginRequiredMixin, View):
         ).strftime("%Y年%m月%d日 %H:%M:%S")
         return render(
             request, "taskmanage/index.html", {"datetime_now": datetime_now})
-
-
-class PageCreateView(LoginRequiredMixin, View):
-    def get(self, request):
-        form = PageForm()
-        return render(request, "taskmanage/page_form.html", {"form": form})
-
-    def post(self, request):
-        form = PageForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect("taskmanage:index")
-            # アプリ名:パス、taskmanage/urls.py内に記載したパスname
-        return render(request, "taskmanage/page_form.html", {"form": form})
-
-
-class PageListView(LoginRequiredMixin, View):
-    def get(self, request):
-        page_list = Page.objects.order_by("-page_date")
-        return render(request, "taskmanage/page_list.html", {"page_list": page_list})
  
-
-class PageDetailView(LoginRequiredMixin, View):
-    def get(self, request, id):
-        page = get_object_or_404(Page, id=id)
-        return render(request, "taskmanage/page_detail.html", {"page": page})
-
-
-class PageUpdateView(LoginRequiredMixin, View):
-    def get(self, request, id):
-        page = get_object_or_404(Page, id=id)
-        form = PageForm(instance=page)
-        return render(request, "taskmanage/page_update.html", {"form": form})
-
-    def post(self, request, id):
-        page = get_object_or_404(Page, id=id)
-        form = PageForm(request.POST, request.FILES, instance=page)
-        if form.is_valid():
-            form.save()
-            return redirect("taskmanage:page_detail", id=id)
-        return render(request, "taskmanage/page_update.html", {"form": form})
-
-
-class PageDeleteView(LoginRequiredMixin, View):
-    def get(self, request, id):
-        page = get_object_or_404(Page, id=id)
-        return render(request, "taskmanage/page_confirm_delete.html", {"page": page})
-
-    def post(self, request, id):
-        page = get_object_or_404(Page, id=id)
-        page.delete()
-        return redirect("taskmanage:page_list")
-
 
 # カレンダーの土台。クラス継承で渡す
 class CalendarBassView():
-    def get_tasks_by_date(self, year, month):
+    def _get_day_info(self, year, month):
+        day_info = []
+
+        days_in_month = calendar.monthrange(year, month)[1]
+        first_weekday = calendar.monthrange(year, month)[0] + 1  # 開始曜日（+1で調整）
+        jp_holidays = holidays.Japan(years=year)
+        weekdays = ["月", "火", "水", "木", "金", "土", "日"]
+
+        # 空セルを埋める（開始曜日に応じた調整）
+        for _ in range(first_weekday % 7):  # 7で割って余分なセルが生成されないように調整
+            day_info.append({"day": None, "weekday": None, "is_holiday": False, "holiday_name": None})
+
+        # 各日付を追加
+        for day in range(1, days_in_month + 1):
+            date = datetime(year, month, day)
+            is_holiday = date.strftime("%Y-%m-%d") in jp_holidays
+            holiday_name = jp_holidays.get(date.strftime("%Y-%m-%d"), None)
+            day_info.append({
+                "day": day,
+                "weekday": weekdays[date.weekday()],
+                "is_holiday": is_holiday,
+                "holiday_name": holiday_name,
+            })
+
+        return day_info
+
+    def _get_tasks_by_date(self, year, month):
         """DBから指定された年月のタスクを全て取得"""
+        day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
+        
         tasks = Task.objects.filter(date__year=year, date__month=month)
         tasks_by_date = {}  # 構造 {day, ["task":~, "is_checked":~]}
         for task in tasks:
@@ -100,67 +75,45 @@ class CalendarBassView():
                 "is_checked": task.is_checked,
             })
 
-        days_in_month = calendar.monthrange(year, month)[1]
-        first_weekday = calendar.monthrange(year, month)[0] + 1  # 開始曜日（+1で調整）
-        jp_holidays = holidays.Japan(years=year)
-
-        # カレンダーの日付データを生成
-        calendar_days = []
-
-        # 空セルを埋める（開始曜日に応じた調整）
-        for _ in range(first_weekday % 7):  # 7で割って余分なセルが生成されないように調整
-            calendar_days.append({"day": None, "is_holiday": False, "holiday_name": None, "tasks": []})
-
         # 各日付を追加
-        for day in range(1, days_in_month + 1):
-            date = datetime(year, month, day)
-            is_holiday = date.strftime("%Y-%m-%d") in jp_holidays
-            holiday_name = jp_holidays.get(date.strftime("%Y-%m-%d"), None)
-            calendar_days.append({
-                "day": day,
-                "is_holiday": is_holiday,
-                "holiday_name": holiday_name,
-                "tasks": tasks_by_date.get(day, []),
-            })
+        for i in day_info:
+            day = i["day"]  # 'day'の値を取得
+            i["tasks"] = tasks_by_date.get(day, [])  # dayが一致するタスクをセット
 
-        return calendar_days
+        day_info_and_tasks = day_info
+
+        return day_info_and_tasks
 
 
-# calendar_daysはCalendarBassViewからの戻り値
+# day_info_and_tasksはCalendarBassViewからの戻り値
 # 構造 ["day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]]
 class CalendarView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
         year = int(request.GET.get("year", datetime.today().year))
         month = int(request.GET.get("month", datetime.today().month))
-
-        calendar_days = self.get_tasks_by_date(year, month)
-
-        # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
-        return render(request, 'taskmanage/calendar.html', {
-            'calendar_days': calendar_days,
-            'year': year,
-            'month': month,
-        })
-
-
-class CalendarDataView(LoginRequiredMixin, View, CalendarBassView):
-    def get(self, request):
-        print("Raw GET data:", request.GET)  # 🔍 デバッグ用
-
-        year = int(request.GET.get("year", datetime.today().year))
-        month = int(request.GET.get("month", datetime.today().month))
+        view_type = request.GET.get("view", "default")  # 分岐処理
 
         # 年の範囲を制限
         if year < 1900 or year > 2200:
             return JsonResponse({"error": "Year out of range"}, status=400)
 
-        calendar_days = self.get_tasks_by_date(year, month)
+        day_info_and_tasks = self._get_tasks_by_date(year, month)
 
-        return JsonResponse({
-            "calendar_days": calendar_days,
-            "year": year,
-            "month": month,
-        })
+        # 分岐
+        if view_type == "tasks-json":
+            return JsonResponse({
+                "day_info_and_tasks": day_info_and_tasks,
+                "year": year,
+                "month": month,
+            })
+        else:  # カレンダー描画
+            print("view_typeの指定がありませんでした")
+            # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
+            return render(request, 'taskmanage/calendar.html', {
+                'day_info_and_tasks': day_info_and_tasks,
+                'year': year,
+                'month': month,
+            })
 
 
 # save()でデータベースに保存、関数名はpost、URL：save-tasks
@@ -199,8 +152,6 @@ class SaveTasks(LoginRequiredMixin, View):
                         selected_data = Task.objects.filter(date=DATE, task=t).first()
                         if selected_data:
                             is_checked = selected_data.is_checked
-                            print("------is_checked------")
-                            print(is_checked)
                         tasks.append(Task(date=DATE, task=t, is_checked=is_checked))
 
                     # bulk_create(): 複数データを一気に保存
@@ -213,7 +164,7 @@ class SaveTasks(LoginRequiredMixin, View):
         else:
             # 他のHTTPメソッドは許可しない
             return JsonResponse({'error': 'Method not allowed'}, status=405)
-        
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class SaveValueChange(LoginRequiredMixin, View):
@@ -239,29 +190,106 @@ class SaveValueChange(LoginRequiredMixin, View):
         else:
             # 他のHTTPメソッドは許可しない
             return JsonResponse({'error': 'Method not allowed'}, status=405)
-        
 
+  
+@method_decorator(csrf_exempt, name='dispatch')
 class CountCheck(LoginRequiredMixin, View):
     def count_check(self, request):
         true_count = Task.objects.filter(is_checked=True).count()
         return JsonResponse({'true_count': true_count})
-        
+
 
 @method_decorator(csrf_exempt, name='dispatch')
-class Diary(LoginRequiredMixin, View):
+class RecordsView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
-        return render(request, "taskmanage/diary.html")
+        # ?year=~&month=~ のパラメータを取得
+        year = int(request.GET.get("year", datetime.today().year))
+        month = int(request.GET.get("month", datetime.today().month))
+        view_type = request.GET.get("view", "default")  # 分岐処理
 
+        # 年の範囲を制限
+        if year < 1900 or year > 2200:
+            return JsonResponse({"error": "Year out of range"}, status=400)
+
+        day_info_and_records = self._get_study_time(year, month)
+
+        if view_type == "records-json":
+            return JsonResponse({
+                "day_info_and_records": day_info_and_records,
+                "year": year,
+                "month": month,
+            })
+        else:
+            return render(request, 'taskmanage/time_record.html', {
+                'day_info_and_records': day_info_and_records,
+                'year': year,
+                'month': month,
+            })
+    
+    def _get_study_time(self, year, month):
+        """DBから指定された年月のstudy_timeを全て取得"""
+        day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
+        
+        records = Record.objects.filter(date__year=year, date__month=month)
+
+        records_by_date = {}  # 構造 {day, ["study_time":~]}
+        # get_study_time()はmodelsに記載
+        for record in records:
+            records_by_date[record.date.day] = record.get_study_time()
+        
+        # 各日付を追加
+        for i in day_info:
+            day = i["day"]  # 'day'の値を取得
+            # dayが一致するstudy_timeをセット、第二引数はデフォルト値
+            study_time = records_by_date.get(day, 0)
+            # 0なら00:00に変更
+            i["study_time"] = "00:00" if study_time == 0 else study_time
+            
+
+        day_info_and_records = day_info
+
+        return day_info_and_records
+
+
+class SaveStudyTime(LoginRequiredMixin, View):
+    def post(self, request):
+        if request.method == "POST":
+            jsonData = json.loads(request.body)
+
+            DATE = jsonData.get("date")
+            optimized_DATE = datetime.strptime(DATE, "%Y-%m-%d").date()
+            
+            STUDY_TIME = jsonData.get("study_time")
+
+            try:
+                if ":" in STUDY_TIME:  # 1:00のような形式の場合
+                    hours, minutes = map(int, STUDY_TIME.split(":"))
+                    STUDY_TIME = timedelta(hours=hours, minutes=minutes)
+                else:  # 45など分数だけの形式の場合
+                    STUDY_TIME = timedelta(minutes=int(STUDY_TIME))
+            except ValueError:
+                return JsonResponse({"error": "Invalid study_time value"}, status=400)
+
+            data_study_time = Record(date=optimized_DATE, study_time=STUDY_TIME)
+            with transaction.atomic():
+                # 上書きor新規作成
+                Record.objects.update_or_create(
+                    date=optimized_DATE,
+                    defaults={"study_time": STUDY_TIME}
+                )
+                print("study_time was saved!")
+                return JsonResponse({
+                    "message": "study_time saved successfully!"
+                })
+        else:
+            # 他のHTTPメソッドは許可しない
+            return JsonResponse({'error': 'Method not allowed'}, status=405)
+        
 
 index = IndexView.as_view()
-page_create = PageCreateView.as_view()
-page_list = PageListView.as_view()
-page_detail = PageDetailView.as_view()
-page_update = PageUpdateView.as_view()
-page_delete = PageDeleteView.as_view()
 page_cal = CalendarView.as_view()
 save_tasks = SaveTasks.as_view()
 save_value_change = SaveValueChange.as_view()
-calendar_data_view = CalendarDataView.as_view()
 count_check = CountCheck.as_view()
-diary = Diary.as_view()
+records_view = RecordsView.as_view()
+save_study_time = SaveStudyTime.as_view()

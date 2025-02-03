@@ -9,14 +9,11 @@
 <div id="index">
     <p>{{ datetime_now }}</p>
     <!-- 上はviewsから取得 -->
+    <!-- taskmanage:(urlsのname) -->
     <br>
     <a href="{% url 'taskmanage:page_cal' %}" class="button">カレンダー</a>
     <br>
-    <a href="{% url 'taskmanage:diary' %}" class="button">日記</a>
-    <br>
-    <a href="{% url 'taskmanage:page_create' %}" class="button">タスクを書く</a>
-    <br>
-    <a href="{% url 'taskmanage:page_list' %}" class="button">ページ一覧</a>
+    <a href="{% url 'taskmanage:records_view' %}" class="button">勉強時間記録</a>
     <br>
 </div>
 <form action="{% url 'accounts:logout' %}" method="post">

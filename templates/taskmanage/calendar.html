@@ -25,7 +25,7 @@
         </thead>
         <tbody>
             <tr>
-                {% for day in calendar_days %}
+                {% for day in day_info_and_tasks %}
                     <td class="
                         {% if day.day %}
                             {% if day.is_holiday %}holiday{% endif %}
