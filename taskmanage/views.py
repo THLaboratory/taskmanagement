@@ -62,7 +62,6 @@ class CalendarBassView():
             is_holiday = date.strftime("%Y-%m-%d") in jp_holidays
             holiday_name = jp_holidays.get(date.strftime("%Y-%m-%d"), None)
             day_info.append({
-            day_info.append({
                 "day": day,
                 "weekday": weekdays[date.weekday()],
                 "weekday": weekdays[date.weekday()],
@@ -106,14 +105,7 @@ class CalendarBassView():
         day_info_and_tasks = day_info
 
         return day_info_and_tasks
-        # 各日付を追加
-        for i in day_info:
-            day = i["day"]  # 'day'の値を取得
-            i["tasks"] = tasks_by_date.get(day, [])  # dayが一致するタスクをセット
 
-        day_info_and_tasks = day_info
-
-        return day_info_and_tasks
 
 
 # day_info_and_tasksはCalendarBassViewからの戻り値
@@ -133,21 +125,6 @@ class CalendarView(LoginRequiredMixin, View, CalendarBassView):
         day_info_and_tasks = self._get_tasks_by_date(year, month)
         day_info_and_tasks = self._get_tasks_by_date(year, month)
 
-        # 分岐
-        if view_type == "tasks-json":
-            return JsonResponse({
-                "day_info_and_tasks": day_info_and_tasks,
-                "year": year,
-                "month": month,
-            })
-        else:  # カレンダー描画
-            print("view_typeの指定がありませんでした")
-            # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
-            return render(request, 'taskmanage/calendar.html', {
-                'day_info_and_tasks': day_info_and_tasks,
-                'year': year,
-                'month': month,
-            })
         # 分岐
         if view_type == "tasks-json":
             return JsonResponse({
@@ -243,18 +220,13 @@ class SaveValueChange(LoginRequiredMixin, View):
 
   
 @method_decorator(csrf_exempt, name='dispatch')
-
-  
-@method_decorator(csrf_exempt, name='dispatch')
 class CountCheck(LoginRequiredMixin, View):
     def count_check(self, request):
         true_count = Task.objects.filter(is_checked=True).count()
         return JsonResponse({'true_count': true_count})
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
-class RecordsView(LoginRequiredMixin, View, CalendarBassView):
 class RecordsView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
         # ?year=~&month=~ のパラメータを取得
