@@ -50,6 +50,7 @@ class CalendarBassView():
         jp_holidays = holidays.Japan(years=year)
         weekdays = ["月", "火", "水", "木", "金", "土", "日"]
         weekdays = ["月", "火", "水", "木", "金", "土", "日"]
+        weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
         # 空セルを埋める（開始曜日に応じた調整）
         for _ in range(first_weekday % 7):  # 7で割って余分なセルが生成されないように調整
@@ -97,6 +98,20 @@ class CalendarBassView():
                 "is_checked": task.is_checked,
             })
 
+        return day_info
+
+    def _get_tasks_by_date(self, year, month):
+        """DBから指定された年月のタスクを全て取得"""
+        day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
+        
+        tasks = Task.objects.filter(date__year=year, date__month=month)
+        tasks_by_date = {}  # 構造 {day, ["task":~, "is_checked":~]}
+        for task in tasks:
+            tasks_by_date.setdefault(task.date.day, []).append({
+                "task": task.task,
+                "is_checked": task.is_checked,
+            })
+
         # 各日付を追加
         for i in day_info:
             day = i["day"]  # 'day'の値を取得
@@ -115,7 +130,6 @@ class CalendarBassView():
         return day_info_and_tasks
 
 
-# day_info_and_tasksはCalendarBassViewからの戻り値
 # day_info_and_tasksはCalendarBassViewからの戻り値
 # 構造 ["day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]]
 class CalendarView(LoginRequiredMixin, View, CalendarBassView):

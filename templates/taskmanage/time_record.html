@@ -38,7 +38,8 @@
                             <div class="date">{{ info.day }}</div>
                         {% endif %}
                             <div class="weekday">{{ info.weekday }}</div>                    
-                        <div type="text" class="time-input" name="time_{{ info.day }}">
+                        <div type="text" class="time-input {% if info.study_time == '00:00' %}
+                            time-zero{% endif %}" name="time_{{ info.day }}">
                             {{ info.study_time }}
                         </div>
                     </div> 
