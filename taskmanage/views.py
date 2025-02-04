@@ -41,18 +41,14 @@ class IndexView(LoginRequiredMixin, View):
 class CalendarBassView():
     def _get_day_info(self, year, month):
         day_info = []
-    def _get_day_info(self, year, month):
-        day_info = []
 
         days_in_month = calendar.monthrange(year, month)[1]
         first_weekday = calendar.monthrange(year, month)[0] + 1  # 開始曜日（+1で調整）
         jp_holidays = holidays.Japan(years=year)
         weekdays = ["月", "火", "水", "木", "金", "土", "日"]
-        weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
         # 空セルを埋める（開始曜日に応じた調整）
         for _ in range(first_weekday % 7):  # 7で割って余分なセルが生成されないように調整
-            day_info.append({"day": None, "weekday": None, "is_holiday": False, "holiday_name": None})
             day_info.append({"day": None, "weekday": None, "is_holiday": False, "holiday_name": None})
 
         # 各日付を追加
@@ -62,7 +58,6 @@ class CalendarBassView():
             holiday_name = jp_holidays.get(date.strftime("%Y-%m-%d"), None)
             day_info.append({
                 "day": day,
-                "weekday": weekdays[date.weekday()],
                 "weekday": weekdays[date.weekday()],
                 "is_holiday": is_holiday,
                 "holiday_name": holiday_name,
@@ -208,7 +203,6 @@ class CountCheck(LoginRequiredMixin, View):
         return JsonResponse({'true_count': true_count})
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class RecordsView(LoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
@@ -300,7 +294,5 @@ page_cal = CalendarView.as_view()
 save_tasks = SaveTasks.as_view()
 save_value_change = SaveValueChange.as_view()
 count_check = CountCheck.as_view()
-records_view = RecordsView.as_view()
-save_study_time = SaveStudyTime.as_view()
 records_view = RecordsView.as_view()
 save_study_time = SaveStudyTime.as_view()
