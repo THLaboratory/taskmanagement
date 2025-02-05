@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+p {
+    margin: 5px;
+    align-items: center;
+    text-align: center;
+}
+
+.button {
+    text-align: center;
+}
+
+form {
+    text-align: center;
+}
+
+#index {
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+}
