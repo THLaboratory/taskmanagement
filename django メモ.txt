@@ -1,8 +1,0 @@
-・サーバー起動
-cd myproject
-python manage.py runserver
-
-初期URL：http://127.0.0.1:8000/taskmanage/
-
-superuser ID: tiger
-PW: 1
