@@ -38,7 +38,12 @@ SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    ALLOWED_HOSTS = [
+        'ec2-3-115-9-216.ap-northeast-1.compute.amazonaws.com',  # EC2のパブリックDNS
+        '3.115.9.216',  # EC2のパブリックIP
+        "localhost",
+        "127.0.0.1",
+    ]
 
 HAYSTACK_CONNECTIONS = {
     'default': {
