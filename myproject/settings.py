@@ -36,8 +36,8 @@ MEDIA_URL = "/media/"
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
+if not ALLOWED_HOSTS or ALLOWED_HOSTS == []:
     ALLOWED_HOSTS = [
         'ec2-3-115-9-216.ap-northeast-1.compute.amazonaws.com',  # EC2のパブリックDNS
         '3.115.9.216',  # EC2のパブリックIP
@@ -149,8 +149,7 @@ STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles/taskmanage"
 
-# DEBUG = env.bool("DEBUG", default=False)
-DEBUG = False
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 if DEBUG:
     STATICFILES_DIRS = [BASE_DIR / 'static']  # 昨日は'static/taskmanage'で動いたのに、今日は'static'じゃないとダメ。なぜ？
