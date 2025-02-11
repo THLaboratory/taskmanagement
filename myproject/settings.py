@@ -152,7 +152,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles/taskmanage"
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static']  # 昨日は'static/taskmanage'で動いたのに、今日は'static'じゃないとダメ。なぜ？
+    STATICFILES_DIRS = [BASE_DIR / 'static']
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []
