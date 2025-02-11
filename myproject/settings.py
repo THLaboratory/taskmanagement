@@ -147,7 +147,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / "staticfiles/taskmanage"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
