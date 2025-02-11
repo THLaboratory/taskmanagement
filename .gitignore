@@ -3,9 +3,7 @@ __pycache__/
 /media/
 *.log
 .env
-/staticfiles/
-/static/*
-!static/taskmanage/
+/static/
 !static/taskmanage/css/
 !static/taskmanage/js/
 .sqlite3
