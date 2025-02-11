@@ -18,8 +18,8 @@ import dj_database_url
 # 環境変数の設定
 env = environ.Env()
 
-# .env ファイルが存在すれば読み込む
-env_file = os.path.join(os.path.dirname(__file__), '.env')
+# .env ファイルが存在すれば読み込む、.envはルートディレクトリにある
+env_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 
 if os.path.exists(env_file):
     env.read_env(env_file)
