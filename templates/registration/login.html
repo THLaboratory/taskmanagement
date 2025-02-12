@@ -1,11 +1,36 @@
-{% extends "base/taskmanage_base.html" %}
-{% block body %}
+<!DOCTYPE html>
+{% load static %}
 
-<h2>ログイン</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">ログイン</button>
-</form>
+<!-- ハンバーガーメニューは含めないため、base.htmlは読み込まない -->
 
-{% endblock %}
+<html lang="ja">
+    <head>
+        <meta charset="utf-8" />
+        <title>Task Management</title>
+        <link rel="stylesheet" href="{% static 'taskmanage/css/title.css' %}?v=1.0" defer>
+        <link rel="stylesheet" href="{% static 'taskmanage/css/login.css' %}?v=1.0">
+        <!-- Noto Sans JP用 -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+        <!-- ここまでNoto Sans JP用 -->
+    </head>
+    <body>
+        <h1 id="bigTitle"><a href="{% url 'taskmanage:index' %}">Task Management</a></h1>
+        <div id="login-form">
+            <h2>ログイン</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">ログイン</button>
+            </form>
+
+            <!-- ゲストモードでログイン -->
+            <form action="{% url 'taskmanage:guest_login' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                <button type="submit">ゲストとしてログイン</button>
+            </form>
+        </div>
+    </body>
+</html>
