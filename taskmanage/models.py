@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 import uuid
 from datetime import timedelta
@@ -6,6 +7,8 @@ from datetime import timedelta
   
     
 class Task(models.Model):
+    # on_delete=models.CASCADE により、ユーザー削除時にタスクも削除
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # ユーザーごとにデータを紐付け
     date = models.DateField()
     task = models.TextField()
     is_checked = models.BooleanField(default=False)
@@ -15,11 +18,12 @@ class Task(models.Model):
     
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['date', 'task'], name='unique_task_per_date')
+            models.UniqueConstraint(fields=['user', 'date', 'task'], name='unique_task_per_date')
         ]
 
 
 class Record(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
     study_time = models.DurationField()
     

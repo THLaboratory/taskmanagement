@@ -6,6 +6,8 @@ app_name = "taskmanage"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("guest-login/", views.guest_login, name="guest_login"),
+    path("guest-logout/", views.guest_logout, name="guest_logout"),
     path("calendar/", views.page_cal, name="page_cal"),
     path("save-tasks/", views.save_tasks, name="save_tasks"),
     path("save-value-change/", views.save_value_change, name="save_value_change"),
