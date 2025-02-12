@@ -18,8 +18,8 @@ import dj_database_url
 # 環境変数の設定
 env = environ.Env()
 
-# .env ファイルが存在すれば読み込む
-env_file = os.path.join(os.path.dirname(__file__), '.env')
+# .env ファイルが存在すれば読み込む、.envはルートディレクトリにある
+env_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 
 if os.path.exists(env_file):
     env.read_env(env_file)
@@ -36,9 +36,14 @@ MEDIA_URL = "/media/"
 
 SECRET_KEY = env("SECRET_KEY", default="unsafe-secret-key")
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
+if not ALLOWED_HOSTS or ALLOWED_HOSTS == []:
+    ALLOWED_HOSTS = [
+        'ec2-3-115-9-216.ap-northeast-1.compute.amazonaws.com',  # EC2のパブリックDNS
+        '3.115.9.216',  # EC2のパブリックIP
+        "localhost",
+        "127.0.0.1",
+    ]
 
 HAYSTACK_CONNECTIONS = {
     'default': {
@@ -142,13 +147,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / "staticfiles/taskmanage"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# DEBUG = env.bool("DEBUG", default=False)
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static']  # 昨日は'static/taskmanage'で動いたのに、今日は'static'じゃないとダメ。なぜ？
+    STATICFILES_DIRS = [BASE_DIR / 'static']
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []
