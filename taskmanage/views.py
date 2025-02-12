@@ -99,11 +99,11 @@ class CalendarBassView():
 
         return day_info
 
-    def _get_tasks_by_date(self, year, month):
+    def _get_tasks_by_date(self, request, year, month):
         """DBから指定された年月のタスクを全て取得"""
         day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
         
-        tasks = Task.objects.filter(date__year=year, date__month=month)
+        tasks = Task.objects.filter(user=request.user, date__year=year, date__month=month)
         tasks_by_date = {}  # 構造 {day, ["task":~, "is_checked":~]}
         for task in tasks:
             tasks_by_date.setdefault(task.date.day, []).append({
@@ -134,7 +134,7 @@ class CalendarView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
         if year < 1900 or year > 2200:
             return JsonResponse({"error": "Year out of range"}, status=400)
 
-        day_info_and_tasks = self._get_tasks_by_date(year, month)
+        day_info_and_tasks = self._get_tasks_by_date(request, year, month)
 
         # 分岐
         if view_type == "tasks-json":
@@ -248,7 +248,7 @@ class RecordsView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
         if year < 1900 or year > 2200:
             return JsonResponse({"error": "Year out of range"}, status=400)
 
-        day_info_and_records = self._get_study_time(year, month)
+        day_info_and_records = self._get_study_time(request, year, month)
 
         if view_type == "records-json":
             return JsonResponse({
@@ -263,11 +263,11 @@ class RecordsView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
                 'month': month,
             })
     
-    def _get_study_time(self, year, month):
+    def _get_study_time(self, request, year, month):
         """DBから指定された年月のstudy_timeを全て取得"""
         day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
         
-        records = Record.objects.filter(date__year=year, date__month=month)
+        records = Record.objects.filter(user=request.user, date__year=year, date__month=month)
 
         records_by_date = {}  # 構造 {day, ["study_time":~]}
         # get_study_time()はmodelsに記載
