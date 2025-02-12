@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import environ
-import dj_database_url
 
 # 環境変数の設定
 env = environ.Env()
