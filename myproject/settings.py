@@ -152,15 +152,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static']
+    STATICFILES_DIRS = [BASE_DIR / 'taskmanage/static']
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 else:
     STATICFILES_DIRS = []
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# print("STATICFILES_DIRS:", STATICFILES_DIRS)
-# print("Expected static path:", os.path.join(BASE_DIR, 'static'))
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -171,7 +167,9 @@ LOGIN_REDIRECT_URL = "/taskmanage/"
 
 LOGOUT_REDIRECT_URL = "/login/"
 
+LOGIN_URL = "/accounts/login/"
+
+print(f"STATIC_ROOT: {STATIC_ROOT}")
 print(f"STATICFILES_DIRS: {STATICFILES_DIRS}")
 print(f"TEMPLATES DIRS: {TEMPLATES[0]['DIRS']}")
 print(f"DEBUG: {DEBUG}")
-print(f"STATIC_ROOT: {STATIC_ROOT}")
