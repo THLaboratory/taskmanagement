@@ -104,7 +104,8 @@ class CalendarBassView():
         """DBから指定された年月のタスクを全て取得"""
         day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
         
-        tasks = Task.objects.filter(user=request.user, date__year=year, date__month=month)
+        # .order_by("id")によってタスクの順番を保持
+        tasks = Task.objects.filter(user=request.user, date__year=year, date__month=month).order_by("id")
         tasks_by_date = {}  # 構造 {day, ["task":~, "is_checked":~]}
         for task in tasks:
             tasks_by_date.setdefault(task.date.day, []).append({
@@ -122,7 +123,6 @@ class CalendarBassView():
         return day_info_and_tasks
 
 
-# day_info_and_tasksはCalendarBassViewからの戻り値
 # day_info_and_tasksはCalendarBassViewからの戻り値
 # 構造 ["day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]]
 class CalendarView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
@@ -146,7 +146,7 @@ class CalendarView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
                 "month": month,
             })
         else:  # カレンダー描画
-            print("view_typeの指定がありませんでした")
+            print("view_typeが未指定のため、renderで出力")
             # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述
             return render(request, 'taskmanage/calendar.html', {
                 'day_info_and_tasks': day_info_and_tasks,
@@ -173,6 +173,7 @@ class SaveTasks(GuestAllowedLoginRequiredMixin, View):
                 TASK = jsonData.get("task")
                 task_list = [t.strip() for t in TASK.splitlines() if t.strip() != ""]
 
+                user = request.user
                 is_checked = jsonData.get("is_checked", False)
 
                 if not DATE:
@@ -192,7 +193,7 @@ class SaveTasks(GuestAllowedLoginRequiredMixin, View):
                         selected_data = Task.objects.filter(date=DATE, task=t).first()
                         if selected_data:
                             is_checked = selected_data.is_checked
-                        tasks.append(Task(date=DATE, task=t, is_checked=is_checked))
+                        tasks.append(Task(user=user, date=DATE, task=t, is_checked=is_checked))
 
                     # bulk_create(): 複数データを一気に保存
                     Task.objects.bulk_create(tasks)
@@ -300,6 +301,7 @@ class SaveStudyTime(GuestAllowedLoginRequiredMixin, View):
             DATE = jsonData.get("date")
             optimized_DATE = datetime.strptime(DATE, "%Y-%m-%d").date()
             
+            user = request.user
             STUDY_TIME = jsonData.get("study_time")
 
             try:
@@ -315,6 +317,7 @@ class SaveStudyTime(GuestAllowedLoginRequiredMixin, View):
             with transaction.atomic():
                 # 上書きor新規作成
                 Record.objects.update_or_create(
+                    user=user,
                     date=optimized_DATE,
                     defaults={"study_time": STUDY_TIME}
                 )

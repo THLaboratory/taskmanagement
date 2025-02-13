@@ -19,9 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // jsonData管理用
     const INFOs = { dataFromDB: {} };
 
-    // ◆スクロール◆
+    // ◆カレンダーのスクロール◆
     calendarContainer.addEventListener("wheel", async function (event) {
-        if (isLoading) return; // 二重リクエストを防止
+        // タスクリストの中でスクロールしている場合は、カレンダーのスクロールを無効化
+        if (event.target.closest("ul") || isLoading) {
+            return;
+        }
+
         const delta = event.deltaY; // スクロールの方向
         
         if (delta > 0) {
@@ -46,9 +50,21 @@ document.addEventListener("DOMContentLoaded", () => {
         isLoading = false;
     });
 
-    // 下のURLで年月ごとのデータをjsonデータで取得、views.pyのCalendarViewクラスより
+    // 日付セル内でスクロールが起きる場合、カレンダー全体のスクロールを制御
+    document.addEventListener('wheel', function (event) {
+        // console.log("カレンダースクロールの排他的制御中");
+        let ulElement = event.target.closest('ul');
+        if (!ulElement) return;
+    
+        // 'ul' のスクロールが可能なら、イベント伝播を停止 (stopPropagation)
+        if (ulElement.scrollHeight > ulElement.clientHeight) {
+            event.stopPropagation();
+        }
+    }, { passive: false });
+    
+    // ◆下のURLで年月ごとのデータをjsonデータで取得、views.pyのCalendarViewクラスより◆
     // 構造 { 'year':~, 'month':~, 'day_info_and_tasks':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
-    // view_type："tasks-json"、None
+    // view_type："tasks-json"(→json)、None(→render)
     async function getCalendarDataView(view_type) {
         const cache_buster = new Date().getTime();
         const calendarDataURL = `/taskmanage/calendar/?year=${currentYear}&month=${currentMonth}&view=${view_type}&_=${cache_buster}`
@@ -176,13 +192,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (divElement.textContent == onlyDay) {                               
                 const ulElement = divElement.nextElementSibling;
                 if (ulElement !== null) {
-                    console.log("ulElement:", ulElement);
                     const liElement = ulElement.firstElementChild;
                     const inputElement = liElement.firstElementChild;
+                    judgeCheck = inputElement.checked
+
                     console.log("ulElement:", ulElement);
                     console.log("liElement:", liElement);
                     console.log("inputElement:", inputElement);
-                    judgeCheck = inputElement.checked
                 } else {
                     createTaskList(taskContent, formattedDate)
                 }                    
