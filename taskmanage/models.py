@@ -23,6 +23,7 @@ class Task(models.Model):
 
 
 class Record(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField()
     study_time = models.DurationField()
     

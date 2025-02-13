@@ -1,5 +1,6 @@
 *.pyc
 __pycache__/
+.sqlite3
 /media/
 *.log
 .env
@@ -8,4 +9,3 @@ __pycache__/
 !static/taskmanage/
 !static/taskmanage/css/
 !static/taskmanage/js/
-.sqlite3

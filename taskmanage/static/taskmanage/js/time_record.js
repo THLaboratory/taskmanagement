@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ◆DBへデータ送信・保存◆
     // saveTaskUrl: タスク保存するためのDjangoテンプレURL
-    // 送るデータはデータベースの型、キー：date, study_time
+    // 送るデータはデータベースの型、キー：user, date, study_time
     async function savingData(formData, URL) {
         try {
             const response = await fetch(URL, {
@@ -125,7 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
         timeInputElement.textContent = studyTime
         console.log("timeInputElement.textContent:", timeInputElement.textContent)
 
+        const username = getUsername()
+
         const confirmedFormData = {
+            "user": username,
             "date": formattedDate,
             "study_time": studyTime,
         };
@@ -138,7 +141,23 @@ document.addEventListener("DOMContentLoaded", () => {
         isLoading = false;
 
         timeFormForDesign.style.display = "none";
-    }   
+    }
+
+    // ◆ユーザ名取得◆
+    async function getUsername() {
+        try {
+            const response = await fetch('/taskmanage/api/get_username/');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(data.username); // ログインユーザー名
+            return data.username;
+        } catch (error) {
+            console.error('Error:', error);
+            return null; // エラー時は `null` を返す
+        }
+    }
 
     // ◆下のURLで年月ごとのデータをjsonデータで取得、views.pyのRecordsViewクラスより◆
     // 構造 { 'year':~, 'month':~, 'day_info_and_records':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "study_time":~}, {~}] } 

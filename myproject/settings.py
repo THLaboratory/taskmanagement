@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import environ
-import dj_database_url
 
 # 環境変数の設定
 env = environ.Env()
@@ -109,9 +108,8 @@ else:
         }
     }
 
-# デバッグ用ログ出力
-# print("Using DATABASE:", DATABASES)
-# print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
+if env('DEBUG'):
+    print('DEBUG: DATABASE_URL =', os.getenv('DATABASE_URL'))
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
