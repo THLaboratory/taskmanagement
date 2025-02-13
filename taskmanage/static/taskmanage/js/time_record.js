@@ -160,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ◆下のURLで年月ごとのデータをjsonデータで取得、views.pyのRecordsViewクラスより◆
-    // 構造 { 'year':~, 'month':~, 'day_info_and_records':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "study_time":~}, {~}] } 
+    // 構造 { 'day_info_and_records':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "study_time":~}, {~}], 'username':~, 'year':~, 'month':~, } 
     // view_type："records-json"(→json)、None(→render)
     async function getRecordsView(year, month) {
         const cache_buster = new Date().getTime();
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const response = await fetch(getRecordsURL, { cache: "no-store" });
         const jsonResponse = await response.json();
         INFOs.thisMonthDataFromDB = jsonResponse;
-        return INFOs.thisMonthDataFromDB;
+        return INFOs;
     }
 
     // ◆今日までの全ての勉強データを取得する関数◆
@@ -191,7 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     break;
                 }
                 try {
-                    const jsonResponse = await getRecordsView(year, month);
+                    await getRecordsView(year, month);
+                    const jsonResponse = INFOs.thisMonthDataFromDB
 
                     // 今日より後の日付のデータを除外
                     jsonResponse.day_info_and_records = jsonResponse.day_info_and_records.filter(record => {
@@ -205,14 +206,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         }
-        return INFOs.allDataFromDB;
+        return INFOs;
     }
     
     // ◆推移グラフの描画◆
     drawChart();
     async function drawChart() {
         // (1)今月のデータだけ取得
-        jsonData = await getRecordsView(currentYear, currentMonth);
+        await getRecordsView(currentYear, currentMonth);
+        const jsonData = INFOs.thisMonthDataFromDB;
         console.log("jsonData:", jsonData);
 
         const jsonDataArray = Object.values(jsonData);
@@ -264,17 +266,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const n = 365;  // n日前からの累計勉強時間【適宜変更】→ 絶対的な時間を指定すべきか？
         const displayDuration = 100; // グラフに表示する期間【適宜変更】
         
-        allJsonData = await getAllRecordsView();
+        await getAllRecordsView();
+        const allJsonData = INFOs.thisMonthDataFromDB;
+        console.log("allJsonData:", allJsonData);
 
         // day_info_and_recordsにyear、monthを付与
-        const allJsonDataArray = allJsonData.flatMap(data => 
-            data.day_info_and_records.map(record => ({
-                ...record,
-                year: data.year,
-                month: data.month
-            }))
+        allJsonDataArray = allJsonData.day_info_and_records.map(data => ({
+                study_time: data.study_time,
+                year: allJsonData.year,
+                month: allJsonData.month,
+                day: data.day,
+            })
         );
-        const filteredAllJsonDataArray = allJsonDataArray.filter(data => data.day !== null);
+        filteredAllJsonDataArray = allJsonDataArray.filter(data => data.day !== null);
         console.log("filteredAllJsonDataArray:", filteredAllJsonDataArray);
 
         // 累計勉強時間の計算        
@@ -302,7 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
             totalStudyTime.push(total);
         });
         const slicedTotalStudyTime = totalStudyTime.slice(-displayDuration);  // 表示区間だけ取り出す
-        console.log("slicedTotalStudyTime:", slicedTotalStudyTime);
 
         // ◆推移グラフ◆
         const ctx2 = document.getElementById("totalStudyTimeChart").getContext("2d");
