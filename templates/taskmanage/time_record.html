@@ -3,17 +3,14 @@
 
 {% block head %}
 <!-- CSSの読み込み -->
-<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v={{ STATIC_VERSION }}" defer>
+<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v={{ STATIC_VERSION }}">
 {% endblock %}
 
 <!-- パーセントかっこの条件文はdjangoによるもの -->
 
 {% block body %}
-<h1 id="calendar-title">
-    <button id="prevMonth">◀</button>
-    <span id="currentMonth">{{ year }}年 {{ month }}月</span>
-    <button id="nextMonth">▶</button>
-</h1>
+<!-- csrfトークン取得用。どこに置いてもよい -->
+<meta name="csrf-token" content="{{ csrf_token }}">
 
 <!-- react読み込み -->
 <div id="react-root"
@@ -24,15 +21,6 @@
 {{ day_info_and_records|json_script:"day-info" }}
 
 <script src="{% static 'bundle.js' %}"></script>
-
-<!-- JavaScriptの読み込み、jsonは|safeをつけないと正常に渡されない? -->
-<script>
-    const djangoData = {
-        day_info_and_records: "{{ day_info_and_records|safe }}",
-        year: "{{ year }}",
-        month: "{{ month }}"
-    };
-</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{% static 'taskmanage/js/time_record.js' %}?v={{ STATIC_VERSION }}" defer></script>
 

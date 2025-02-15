@@ -29,15 +29,11 @@ def maybe_exempt(view_func):
         return csrf_exempt(view_func)
     return view_func
 
-# FBVではGuestAllowedLoginRequiredMixinよりもlogin_requiredのほうが楽
-# @login_required
-# def get_username(request):
-#     return JsonResponse({'username': request.user.username})
 
 class GetUsername(GuestAllowedLoginRequiredMixin, View):
     def get(self, request):
         return JsonResponse({'username': request.user.username})
-
+    
 
 class GuestLoginView(View):
     def post(self, request):
@@ -52,7 +48,6 @@ class GuestLoginView(View):
         next_url = request.POST.get('next') or request.GET.get('next') or '/taskmanage/'
         print(f"Redirecting to: {next_url}")
         return redirect(next_url)
-
 
 
 class GuestLogoutView(View):
@@ -232,14 +227,7 @@ class SaveValueChange(GuestAllowedLoginRequiredMixin, View):
             # 他のHTTPメソッドは許可しない
             return JsonResponse({'error': 'Method not allowed'}, status=405)
 
-
-@method_decorator(csrf_exempt, name='dispatch')
-class CountCheck(GuestAllowedLoginRequiredMixin, View):
-    def count_check(self, request):
-        true_count = Task.objects.filter(is_checked=True).count()
-        return JsonResponse({'true_count': true_count})
-
-
+# save_study_time(self, hours, minutes)、get_study_time(self)はmodelsに記載
 @method_decorator(csrf_exempt, name='dispatch')
 class RecordsView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
     def get(self, request):
@@ -252,7 +240,7 @@ class RecordsView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
         if year < 1900 or year > 2200:
             return JsonResponse({"error": "Year out of range"}, status=400)
 
-        day_info_and_records = self._get_study_time(request, year, month)
+        day_info_and_records = self._getting_study_time(request, year, month)
 
         if view_type == "records-json":
             return JsonResponse({
@@ -269,14 +257,13 @@ class RecordsView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
                 'month': month,
             })
     
-    def _get_study_time(self, request, year, month):
+    def _getting_study_time(self, request, year, month):
         """DBから指定された年月のstudy_timeを全て取得"""
         day_info = self._get_day_info(year, month)  # 戻り値をインスタンス化
         
         records = Record.objects.filter(user=request.user, date__year=year, date__month=month)
 
-        records_by_date = {}  # 構造 {day, ["study_time":~]}
-        # get_study_time()はmodelsに記載
+        records_by_date = {}  # 構造 {day, ["study_time":~]}        
         for record in records:
             records_by_date[record.date.day] = record.get_study_time()
         
@@ -291,6 +278,23 @@ class RecordsView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
         day_info_and_records = day_info
 
         return day_info_and_records
+    
+
+# save_study_time(self, hours, minutes)、get_study_time(self)はmodelsに記載
+class GetAllStudyTime(GuestAllowedLoginRequiredMixin, View):
+    def get(self, request):
+        records = Record.objects.filter(user=request.user).order_by("date")
+
+        # 各日ごとの勉強時間データをリスト化
+        study_data = [
+            {
+                "date": record.date.strftime("%Y-%m-%d"),
+                "study_time": record.get_study_time()
+            }
+            for record in records
+        ]
+
+        return JsonResponse(study_data, safe=False)
 
 
 class SaveStudyTime(GuestAllowedLoginRequiredMixin, View):
@@ -337,6 +341,6 @@ index = IndexView.as_view()
 page_cal = CalendarView.as_view()
 save_tasks = SaveTasks.as_view()
 save_value_change = SaveValueChange.as_view()
-count_check = CountCheck.as_view()
 records_view = RecordsView.as_view()
+get_all_study_time = GetAllStudyTime.as_view()
 save_study_time = SaveStudyTime.as_view()

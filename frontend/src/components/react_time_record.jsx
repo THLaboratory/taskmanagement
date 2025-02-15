@@ -1,161 +1,217 @@
 import React, { useState, useEffect } from 'react';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto';
 
-const Calendar = () => {
-    const [year, setYear] = useState(null);
-    const [month, setMonth] = useState(null);
-    const [calendarData, setCalendarData] = useState([]);
-    const [username, setUsername] = useState("");
+// 引数としてindexからpropsを受け取る
+const Calendar = ({ initialData, allStudyData, year, month, username }) => {
+    const [calendarData, setCalendarData] = useState(initialData);
+    const [csrfToken, setCsrfToken] = useState('');
+    const [allData, setAllData] = useState(allStudyData);
+    const [editingDay, setEditingDay] = useState(null);
+    const [inputValue, setInputValue] = useState('');
 
-    // 初回レンダリング時に year, month, day-info を取得
     useEffect(() => {
-        const reactRoot = document.getElementById('react-root');
-        if (reactRoot) {
-            setYear(parseInt(reactRoot.getAttribute('data-year'), 10));
-            setMonth(parseInt(reactRoot.getAttribute('data-month'), 10));
-        }
-
-        const dayInfoElement = document.getElementById('day-info');
-        if (dayInfoElement) {
-            const dayInfo = JSON.parse(dayInfoElement.textContent) || [];
-            setCalendarData(dayInfo.filter(i => i.day !== null));
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (token) {
+            setCsrfToken(token);
         }
     }, []);
 
-    // ユーザ名を取得（初回マウント時のみ）
-    useEffect(() => {
-        const fetchUsername = async () => {
-            try {
-                const response = await fetch('/taskmanage/api/get_username/');
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-                const data = await response.json();
-                setUsername(data.username);
-            } catch (error) {
-                console.error('Error fetching username:', error);
-            }
-        };
-        fetchUsername();
-    }, []);
+    // ◆前後の月カレンダーを読み込む◆
+    const updateCalendar = (newYear, newMonth) => {
+        const newURL = `/taskmanage/records-view/?year=${newYear}&month=${newMonth}`;
+        window.location.href = newURL;
+    };
 
-    // DBへデータ送信
-    async function savingData(formData) {
+    // ◆月の合計勉強時間（画面右下に表示）◆
+    const totalStudyTime = calendarData.reduce((total, data) => {
+        const [hours, minutes] = data.study_time.split(':').map(Number);
+        return total + hours + minutes / 60;
+    }, 0);
+
+    // ◆今までの総勉強時間（画面右下に表示）◆
+    const totalAllTime = allData.reduce((total, data) => {
+        const [hours, minutes] = data.study_time.split(':').map(Number);
+        return total + hours + minutes / 60;
+    }, 0);
+
+    // ◆DBにデータ送信＋保存◆
+    async function savingData(formData, day) {
         try {
             const response = await fetch('/taskmanage/save-study-time/', {
                 method: 'POST',
                 body: JSON.stringify(formData),
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    'X-CSRFToken': csrfToken
                 }
             });
             const data = await response.json();
             console.log("Server response:", data);
+
+            setCalendarData(prevData =>
+                prevData.map(item =>
+                    item.day === day ? { ...item, study_time: inputValue } : item
+                )
+            );
+            setAllData(prevData =>
+                prevData.map(item =>
+                    item.date === formData.date ? { ...item, study_time: formData.study_time } : item
+                )
+            );            
         } catch (error) {
             console.error("Error saving task:", error);
         }
     }
 
-    // フォーム送信時にデータを保存
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const formData = new FormData(event.target);
-        const timeDate = formData.get("date");
-        const targetDate = new Date(timeDate);
-        const onlyDay = targetDate.getDate();
-
-        const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(onlyDay).padStart(2, '0')}`;
-        const studyTime = formData.get("study-time") || "00:00";
-
-        const confirmedFormData = {
-            user: username,
-            date: formattedDate,
-            study_time: studyTime,
-        };
-
-        console.log("confirmedFormData:", confirmedFormData);
-        await savingData(confirmedFormData);
+    // ◆画面上の即時更新◆
+    const handleEdit = (day, studyTime) => {
+        setEditingDay(day);
+        setInputValue(studyTime);
     };
 
-    // 入力変更時に即時更新
-    const handleInputChange = (day, newTime) => {
-        setCalendarData(prevData =>
-            prevData.map(item =>
-                item.day === day ? { ...item, study_time: newTime } : item
-            )
-        );
-        saveStudyTime(day, newTime);
-    };
+    // ◆フォーカスが無くなったら保存◆
+    const handleBlur = async (day) => {
+        if (!inputValue) return;
 
-    // フォーカスが外れたときに即時保存
-    const handleBlur = (day, studyTime) => {
         const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
         const confirmedFormData = {
             user: username,
             date: formattedDate,
-            study_time: studyTime || "00:00",
+            study_time: inputValue || '00:00',
         };
+        
+        await savingData(confirmedFormData, day);
 
-        savingData(confirmedFormData); // 既存の関数を使用
+        setEditingDay(null);
+    };
+    
+    // ◆Enterでも保存◆
+    const handleKeyDown = (event, day) => {
+        if (event.key === 'Enter') {
+            handleBlur(day);
+        }
+    };
+
+    // ◆グラフのプロパティ◆
+    const options = {
+        elements: {
+            point: {
+                radius: 3,
+                hoverRadius: 5,
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    precision: 0
+                }
+            }
+        }
+    };
+
+    // ◆グラフ描画◆
+    const chartData = {
+        labels: calendarData.map(data => data.day),
+        datasets: [{
+            label: '勉強時間（h）',
+            data: calendarData.map(data => {
+                const [hours, minutes] = data.study_time.split(':').map(Number);
+                return hours + minutes / 60;
+            }),
+            borderColor: 'blue',
+            borderWidth: 1,
+            fill: false,
+        }]
+    };
+
+    const cumulativeData = [];
+    let total = 0;
+    calendarData.forEach(data => {
+        const [hours, minutes] = data.study_time.split(':').map(Number);
+        total += hours + minutes / 60;
+        cumulativeData.push(total);
+    });
+
+    const cumulativeChartData = {
+        labels: calendarData.map(data => data.day),
+        datasets: [{
+            label: '累計勉強時間（h）',
+            data: cumulativeData,
+            borderColor: 'red',
+            borderWidth: 1,
+            fill: false,
+        }]
     };
 
     return (
-        <div className="content-wrapper">
-            <div className="calendar-wrapper">
-                {/* カレンダーの見出し */}
-                <div className="calendar-header">
-                    <div className="header-item">日付</div>
-                    <div className="header-item">曜日</div>
-                    <div className="header-item">勉強時間</div>
-                </div>
-
-                {/* カレンダー本体 */}
-                <div className="calendar-container">
-                    {calendarData.map(info => (
-                        <div key={info.day}
-                            className={`calendar-day 
-                                ${info.is_holiday ? 'holiday' : ''} 
-                                ${info.weekday === "日" ? 'sunday' : ''} 
-                                ${info.weekday === "土" ? 'saturday' : ''}`}>
-                            {/* 祝日名の表示 */}
-                            <div className="date">
-                                {info.day}
-                                {info.is_holiday && <span> ({info.holiday_name})</span>}
+        <>
+            <h1 id="calendar-title">
+                <button id="prevMonth" onClick={() => updateCalendar(year, month === 1 ? 12 : month - 1)}>◀</button>
+                <span>{year}年 {month}月</span>
+                <button id="nextMonth" onClick={() => updateCalendar(year, month === 12 ? 1 : month + 1)}>▶</button>
+            </h1>
+            <div className="content-wrapper">
+                <div className="calendar-wrapper">
+                    <div className="calendar-header">
+                        <div className="header-item">日付</div>
+                        <div className="header-item">曜日</div>
+                        <div className="header-item">勉強時間</div>
+                    </div>
+                    <div className="calendar-container">
+                        {calendarData.map(info => (
+                            <div key={info.day}
+                                className={`calendar-day
+                                    ${info.is_holiday ? 'holiday' : ''}
+                                    ${info.weekday === "日" ? 'sunday' : ''}
+                                    ${info.weekday === "土" ? 'saturday' : ''}`
+                                }
+                            >
+                                <div className="date">{info.day}{info.is_holiday && <span> ({info.holiday_name})</span>}</div>
+                                <div className="weekday">{info.weekday}</div>
+                                {editingDay === info.day ? (
+                                    <input
+                                        type="text"
+                                        className="time-input"
+                                        value={inputValue}
+                                        onChange={(e) => setInputValue(e.target.value)}
+                                        onBlur={() => handleBlur(info.day)}
+                                        onKeyDown={(e) => handleKeyDown(e, info.day)}
+                                        autoFocus
+                                    />
+                                ) : (
+                                    <div className={`time-display ${info.study_time === '00:00' ? 'time-zero' : ''}`}
+                                        onDoubleClick={() => handleEdit(info.day, info.study_time)}
+                                    >
+                                        {info.study_time || '入力'}
+                                    </div>
+                                )}
                             </div>
-                            <div className="weekday">{info.weekday}</div>
-                            <input
-                                type="text"
-                                className={`time-input ${info.study_time === "00:00" ? "time-zero" : ""}`}
-                                value={info.study_time}
-                                onChange={(e) => handleInputChange(info.day, e.target.value)}
-                                onBlur={(e) => handleBlur(info.day, e.target.value)} // フォーカスが外れたら保存
-                            />
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                </div>
+
+                <div className="chart-container-1">
+                    <div className="graphTitle">勉強時間の推移</div>
+                    <Line data={chartData} options={options} />
+                </div>
+                <div className="chart-container-2">
+                    <div className="graphTitle">累計勉強時間の推移</div>
+                    <Line data={cumulativeChartData} options={options} />
+                </div>
+
+                <div className="screen-total-container">
+                    <div className='screen-total-time'>
+                        今月: {totalStudyTime.toFixed(0)} h
+                    </div>
+                    <div className='screen-total-all-time'>
+                        累計: {totalAllTime.toFixed(0)} h
+                    </div>
                 </div>
             </div>
-
-            {/* グラフ部分 */}
-            <div className="chart-container" id="studyTimeChart-container">
-                <div className="graphTitle">勉強時間の推移</div>
-                <canvas id="studyTimeChart"></canvas>
-            </div>
-            <div className="chart-container" id="totalStudyTimeChart-container">
-                <div className="graphTitle">累計勉強時間の推移</div>
-                <canvas id="totalStudyTimeChart"></canvas>
-            </div>
-
-            {/* フォーム部分 */}
-            <div id="timeFormForDesign">
-                <form id="timeForm" onSubmit={handleSubmit}>
-                    <input type="hidden" id="timeFormDate" name="date" />
-                    <textarea id="timeInput" name="study-time" placeholder="時間を入力"></textarea>
-                    <button type="submit">保存</button>
-                    <button type="button" id="cancelButton">キャンセル</button>
-                </form>
-            </div>
-        </div>
+        </>
     );
 };
 

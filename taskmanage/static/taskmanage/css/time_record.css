@@ -49,6 +49,7 @@
     background: white;
     padding: 10px;
     border-radius: 5px;
+    overflow-y: hidden;
 }
 
 /* 見出し部分 */
@@ -58,6 +59,7 @@
     color: white;
     font-weight: bold;
     padding: 8px;
+    padding-right: 20px;
     border-radius: 5px 5px 0 0;
 }
 
@@ -72,6 +74,7 @@
     flex-direction: column;
     max-height: 63vh; /* 画面の70%の高さまで */
     overflow-y: auto;
+    scrollbar-gutter: stable;
     border: 1px solid #ddd;
     border-radius: 0 0 5px 5px;
 }
@@ -79,42 +82,35 @@
 /* 各日のデータを横並びにする */
 .calendar-day {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: center;
     padding: 5px;
     border-bottom: 1px solid #ddd;
+    height: 100%;
+}
+
+.time-input {
+    flex: 1;
+    text-align: center;
+    width: 15%;
+    padding: 5px;
+    border: 1px solid #d8d8d8;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 /* 各項目の幅を適切に設定 */
-.date, .weekday, .time-input {
+.date, .weekday, .time-display {
     flex: 1;
     text-align: center;
+    font-size: 16px;
 }
 .date span {
     font-size: 11px;
 }
-#timeFormForDesign {
-    width: 90%;
-    display: none;
-    position: fixed; /* 基準位置が画面になり、浮く */
-    width: 150px;
-    height: 60px;
-    background-color: white;
-    border: 1px solid #ccc;
-    padding: 20px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    z-index: 600px;
-}
+
 /* 勉強時間の入力欄 */
-.time-input {
-    vertical-align: middle;
-    width: 30%;
-    height: auto;
-    max-width: 80px;
-    padding: 5px;
-    border: 1px solid #d8d8d8;
-    border-radius: 5px;
-}
 .time-zero {
     color: transparent;  /* 00:00の場合だけ非表示 */
 }
@@ -129,12 +125,11 @@
     background-color: #e8f0ff; /* 土曜の背景色 */
 }
 
-
 /* 以下、グラフ部分 */
 .graphTitle {
     font-size: 20px;
 }
-.chart-container {
+.chart-container-1, .chart-container-2 {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -153,11 +148,23 @@ canvas {
     max-width: 100%;
 }
 
-#studyChart-container {
-    grid-column: 2; /* 2列目 */
-    grid-row: 1; /* 1行目 */
+.screen-total-container {    
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    text-align: left;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000; /* 前面に固定 */
+    background: #f7f7f7; /* 半透明の背景 */
+    color: rgb(0, 0, 0);
+    padding: 7px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: none;
 }
-#cumulativeChart-container {
-    grid-column: 2; /* 2列目 */
-    grid-row: 2; /* 2行目 */
+.screen-total-time,
+.screen-total-all-time {
+    margin: 2px 0;
 }

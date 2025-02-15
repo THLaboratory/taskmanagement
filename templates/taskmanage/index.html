@@ -17,11 +17,6 @@
     <br>
 </div>
 
-<!-- react関連のファイル読み込み -->
-<div id="react-root"></div>
-<script src="{% static 'bundle.js' %}"></script>
-<!-- ここまでreact関連 -->
-
 <form action="{% url 'accounts:logout' %}" method="post">
     {% csrf_token %}
     <button type="submit">ログアウト</button>

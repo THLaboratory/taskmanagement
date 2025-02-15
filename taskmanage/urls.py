@@ -13,7 +13,7 @@ urlpatterns = [
     path("calendar/", views.page_cal, name="page_cal"),
     path("save-tasks/", views.save_tasks, name="save_tasks"),
     path("save-value-change/", views.save_value_change, name="save_value_change"),
-    path('count-check/', views.count_check, name='count_check'),
     path('records-view/', views.records_view, name='records_view'),
+    path('api/get-all-study-time/', views.get_all_study_time, name='get_all_study_time'),
     path('save-study-time/', views.save_study_time, name='save_study_time'),
 ]
