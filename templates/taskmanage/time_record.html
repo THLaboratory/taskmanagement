@@ -15,63 +15,20 @@
     <button id="nextMonth">▶</button>
 </h1>
 
-<div class="content-wrapper">
-    <div class="calendar-wrapper">
-        <!-- 見出し -->
-        <div class="calendar-header">
-            <div class="header-item">日付</div>
-            <div class="header-item">曜日</div>
-            <div class="header-item">勉強時間</div>
-        </div>
-        <!-- カレンダー本体 -->
-        <div class="calendar-container">
-            {% for info in day_info_and_records %}
-                {% if info.day %}                 
-                    <div class="calendar-day                
-                        {% if info.is_holiday %}holiday{% endif %}
-                        {% if info.weekday == "日" %}sunday{% endif %}
-                        {% if info.weekday == "土" %}saturday{% endif %}  
-                    ">
-                        {% if info.is_holiday %}
-                            <div class="date">{{ info.day }}<span> ({{ info.holiday_name }})</span></div>
-                        {% else %}
-                            <div class="date">{{ info.day }}</div>
-                        {% endif %}
-                            <div class="weekday">{{ info.weekday }}</div>                    
-                        <div type="text" class="time-input {% if info.study_time == '00:00' %}
-                            time-zero{% endif %}" name="time_{{ info.day }}">
-                            {{ info.study_time }}
-                        </div>
-                    </div> 
-                {% endif %}               
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- グラフ部分 -->
-    <div class="chart-container" id="studyTimeChart-container">
-        <div class="graphTitle">勉強時間の推移</div>
-        <canvas id="studyTimeChart"></canvas>
-    </div>
-    <div class="chart-container" id="totalStudyTimeChart-container">
-        <div class="graphTitle">累計勉強時間の推移</div>
-        <canvas id="totalStudyTimeChart"></canvas>
-    </div>
+<!-- react読み込み -->
+<div id="react-root"
+    data-year='{{ year }}'
+    data-month='{{ month }}'>
 </div>
 
-<div id="timeFormForDesign">
-    <form id="timeForm">
-        {% csrf_token %}
-        <input type="hidden" id="timeFormDate" name="date">
-        <textarea id="timeInput" name="study-time" placeholder="時間を入力"></textarea>
-        <button type="submit">保存</button>
-        <button type="button" id="cancelButton">キャンセル</button>
-    </form>
-</div>
+{{ day_info_and_records|json_script:"day-info" }}
 
-<!-- JavaScriptの読み込み、jsonは|safeをつけないと正常に渡されない -->
+<script src="{% static 'bundle.js' %}"></script>
+
+<!-- JavaScriptの読み込み、jsonは|safeをつけないと正常に渡されない? -->
 <script>
     const djangoData = {
+        day_info_and_records: "{{ day_info_and_records|safe }}",
         year: "{{ year }}",
         month: "{{ month }}"
     };

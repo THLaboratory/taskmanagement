@@ -70,23 +70,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ◆外側をクリックしたら非表示◆
-    document.addEventListener("click", eliminateForm);
-    function eliminateForm(event) {
-        if (!timeFormForDesign.contains(event.target)) {
-            timeFormForDesign.style.display = "none";
-        }
-    }
+    // document.addEventListener("click", eliminateForm);
+    // function eliminateForm(event) {
+    //     if (!timeFormForDesign.contains(event.target)) {
+    //         timeFormForDesign.style.display = "none";
+    //     }
+    // }
 
     // ◆フォームをキャンセル◆
-    cancelButton.addEventListener("click", cancelForm);
-    function cancelForm() {
-        timeForm.reset(); // フォームの内容をリセット
-        timeFormForDesign.style.display = "none"; // フォームを非表示
-    }
+    // cancelButton.addEventListener("click", cancelForm);
+    // function cancelForm() {
+    //     timeForm.reset(); // フォームの内容をリセット
+    //     timeFormForDesign.style.display = "none"; // フォームを非表示
+    // }
 
     // ◆DBへデータ送信・保存◆
-    // saveTaskUrl: タスク保存するためのDjangoテンプレURL
-    // 送るデータはデータベースの型、キー：user, date, study_time
+    // データのキー：user, date, study_time
     async function savingData(formData, URL) {
         try {
             const response = await fetch(URL, {
@@ -98,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });    
             const data = await response.json(); // JSON を解析
-            console.log("Server response:", data); // サーバーからのレスポンスをログ出力
+            // console.log("Server response:", data); // サーバーからのレスポンスをログ出力
         } catch (error) {
             console.error("Error saving task:", error); // エラーログ
             throw error; // 呼び出し元にエラーを伝播
@@ -106,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ◆フォームの保存ボタンの動作◆
-    timeForm.addEventListener("submit", timeFormSubmit);
+    // timeForm.addEventListener("submit", timeFormSubmit);
     async function timeFormSubmit(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -119,13 +118,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const formattedDate = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(onlyDay).padStart(2, '0')}`;
 
         const studyTime = formData.get("study-time");
-        console.log("studyTime:", studyTime);
+        // console.log("studyTime:", studyTime);
 
         const timeInputElement = document.getElementsByName(`time_${onlyDay}`);
         timeInputElement.textContent = studyTime
-        console.log("timeInputElement.textContent:", timeInputElement.textContent)
+        // console.log("timeInputElement.textContent:", timeInputElement.textContent)
 
-        const username = getUsername()
+        const username = await getUsername()
 
         const confirmedFormData = {
             "user": username,
@@ -133,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "study_time": studyTime,
         };
 
-        console.log(JSON.stringify(confirmedFormData));
+        // console.log(JSON.stringify(confirmedFormData));
 
         isLoading = true;
         await savingData(confirmedFormData, SaveStudyTimeURL);
@@ -155,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return data.username;
         } catch (error) {
             console.error('Error:', error);
-            return null; // エラー時は `null` を返す
+            return null;
         }
     }
 
@@ -178,10 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const endYear = now.getFullYear();
         const endMonth = now.getMonth() + 1;
-        console.log("endYear:", endYear);
-        console.log("endMonth:", endMonth);
+        // console.log("endYear:", endYear);
+        // console.log("endMonth:", endMonth);
         const today = new Date(endYear, endMonth, now.getDate());  // getMonth()は0始まりのため+1
-        console.log("today:", today);
+        // console.log("today:", today);
 
         INFOs.allDataFromDB = [];  // 初期化
 
@@ -215,11 +214,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // (1)今月のデータだけ取得
         await getRecordsView(currentYear, currentMonth);
         const jsonData = INFOs.thisMonthDataFromDB;
-        console.log("jsonData:", jsonData);
+        // console.log("jsonData:", jsonData);
 
         const jsonDataArray = Object.values(jsonData);
-        console.log("jsonDataArray:", jsonDataArray);
-        const filteredJsonDataArray = jsonDataArray[0].filter(record => record.day !== null);        
+        // console.log("jsonDataArray:", jsonDataArray);
+        const filteredJsonDataArray = jsonDataArray[0].filter(record => record.day !== null);
 
         // グラフ作成用データを準備
         const labels = filteredJsonDataArray.map(record => record.day);  // 今月の日付を配列で取得
@@ -230,8 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             return record.study_time; // すでに数値ならそのまま
         });
-        console.log("labels:", labels);
-        console.log("filteredJsonDataArray:", filteredJsonDataArray);
+        // console.log("labels:", labels);
+        // console.log("filteredJsonDataArray:", filteredJsonDataArray);
 
         // ◆推移グラフ◆
         const ctx = document.getElementById("studyTimeChart").getContext("2d");
@@ -268,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         await getAllRecordsView();
         const allJsonData = INFOs.thisMonthDataFromDB;
-        console.log("allJsonData:", allJsonData);
+        // console.log("allJsonData:", allJsonData);
 
         // day_info_and_recordsにyear、monthを付与
         allJsonDataArray = allJsonData.day_info_and_records.map(data => ({
@@ -279,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         );
         filteredAllJsonDataArray = allJsonDataArray.filter(data => data.day !== null);
-        console.log("filteredAllJsonDataArray:", filteredAllJsonDataArray);
+        // console.log("filteredAllJsonDataArray:", filteredAllJsonDataArray);
 
         // 累計勉強時間の計算        
         const startDate = new Date();

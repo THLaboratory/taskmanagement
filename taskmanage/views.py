@@ -17,11 +17,11 @@ import calendar
 import holidays
 import json
 
-
 # .は相対パス、自身と同じ階層にあるファイルを指す
+# renderはhtmlに変数を渡す
 
 def home(request):
-    return HttpResponse("Welcome to the Home Page!")
+    return render(request, "index.html")
 
 # 開発環境のみ CSRF を無効化
 def maybe_exempt(view_func):

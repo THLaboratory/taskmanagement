@@ -16,6 +16,12 @@
     <a href="{% url 'taskmanage:records_view' %}" class="button">勉強時間記録</a>
     <br>
 </div>
+
+<!-- react関連のファイル読み込み -->
+<div id="react-root"></div>
+<script src="{% static 'bundle.js' %}"></script>
+<!-- ここまでreact関連 -->
+
 <form action="{% url 'accounts:logout' %}" method="post">
     {% csrf_token %}
     <button type="submit">ログアウト</button>
