@@ -3,7 +3,7 @@
 
 {% block head %}
 <!-- CSSの読み込み -->
-<link rel="stylesheet" href="{% static 'taskmanage/css/time_record.css' %}?v={{ STATIC_VERSION }}">
+<link rel="stylesheet" href="{% static 'taskmanage/css/calendar.css' %}?v=1.0" defer>
 {% endblock %}
 
 <!-- パーセントかっこの条件文はdjangoによるもの -->
@@ -17,10 +17,5 @@
     data-year='{{ year }}'
     data-month='{{ month }}'>
 </div>
-
-{{ day_info_and_records|json_script:"day-info" }}
-
 <script src="{% static 'bundle.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 {% endblock %}

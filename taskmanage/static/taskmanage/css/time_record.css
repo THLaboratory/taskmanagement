@@ -1,5 +1,9 @@
 @charset "utf-8";
 
+html {
+    height: 100vh;
+}
+
 #calendar-title {
     display: flex;
     justify-content: center;
@@ -162,7 +166,6 @@ canvas {
     padding: 7px 15px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: none;
 }
 .screen-total-time,
 .screen-total-all-time {

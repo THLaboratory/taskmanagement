@@ -3,7 +3,7 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
 // 引数としてindexからpropsを受け取る
-const Calendar = ({ initialData, allStudyData, year, month, username }) => {
+const TimeRecords = ({ initialData, allStudyData, year, month, username }) => {
     const [calendarData, setCalendarData] = useState(initialData);
     const [csrfToken, setCsrfToken] = useState('');
     const [allData, setAllData] = useState(allStudyData);
@@ -215,4 +215,4 @@ const Calendar = ({ initialData, allStudyData, year, month, username }) => {
     );
 };
 
-export default Calendar;
+export default TimeRecords;

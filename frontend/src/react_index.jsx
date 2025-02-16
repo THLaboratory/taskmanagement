@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import Calendar from './components/react_time_record';
+import Calendar from './components/react_calendar';
+import TimeRecords from './components/react_time_record';
 
 document.addEventListener('DOMContentLoaded', () => {
     async function initializeReact() {
@@ -47,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const root = ReactDOM.createRoot(reactRoot);
             root.render(
                 <React.StrictMode>
-                    <Calendar 
+                    <Calendar year={year} month={month} />
+                    <TimeRecords 
                         initialData={filteredDayInfo}
                         allStudyData={allStudyData}
                         year={year}
