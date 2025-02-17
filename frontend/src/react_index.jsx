@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const dayInfo = dayInfoElement ? JSON.parse(dayInfoElement.textContent) : [];
             const filteredDayInfo = dayInfo.filter(i => i.day !== null);
 
+            const viewType = reactRoot.getAttribute('data-view');
+
             console.log("Loaded Django data:", { dayInfo, year, month });
             console.log("filteredDayInfo:", { filteredDayInfo, year, month });
 
@@ -48,14 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const root = ReactDOM.createRoot(reactRoot);
             root.render(
                 <React.StrictMode>
-                    <Calendar year={year} month={month} />
-                    <TimeRecords 
-                        initialData={filteredDayInfo}
-                        allStudyData={allStudyData}
-                        year={year}
-                        month={month}
-                        username={username}
-                    />
+                    {viewType === "calendar" && 
+                        <Calendar year={year} month={month} username={username} />}
+                    {viewType === "time_record" && (
+                        <TimeRecords 
+                            initialData={filteredDayInfo}
+                            allStudyData={allStudyData}
+                            year={year}
+                            month={month}
+                            username={username}
+                        />
+                    )}
                 </React.StrictMode>
             );
         } else {
