@@ -163,20 +163,36 @@ class CalendarView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
 @method_decorator(csrf_exempt, name='dispatch')
 class SaveTasks(GuestAllowedLoginRequiredMixin, View):
     def post(self, request):
-        if request.method == "POST":
-            # postされたデータをjsonとして取得
-            gotten_jsonData = json.loads(request.body)
+        if request.method == "POST":            
+            jsonData = json.loads(request.body)
+            if not isinstance(jsonData, list):
+                return JsonResponse({"error": "Invalid data format"}, status=400)
+
+            user_instance = request.user
+            task_objects = [Task(user=user_instance, date=item["date"], task=item["task"], is_checked=item["is_checked"]) for item in jsonData]
+
+            with transaction.atomic():
+                for task in task_objects:
+                    Task.objects.update_or_create(
+                        user=task.user, date=task.date, task=task.task,
+                        defaults={"is_checked": task.is_checked}
+                    )
+
+            return JsonResponse({"message": "Tasks saved!", "saved_tasks": jsonData})
 
             if not isinstance(gotten_jsonData, list):
                 gotten_jsonData = [gotten_jsonData]
-
+            
             for jsonData in gotten_jsonData:
                 DATE = jsonData.get("date")
-                TASK = jsonData.get("task")
-                task_list = [t.strip() for t in TASK.splitlines() if t.strip() != ""]
+                task_and_check = jsonData.get("task_and_check")
+                print("task_and_check")
+                print(task_and_check)
 
-                user = request.user
-                is_checked = jsonData.get("is_checked", False)
+                TASK = task_and_check.task
+                is_checked = task_and_check.is_checked
+
+                task_list = [t.strip() for t in TASK.splitlines() if t.strip() != ""]                
 
                 if not DATE:
                     return JsonResponse({"status": "error", "message": "Missing required DATE"}, status=400)

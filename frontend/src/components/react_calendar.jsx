@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Calendar = ({ year, month }) => {
+const Calendar = ({ year, month, username }) => {
     const [currentYear, setCurrentYear] = useState(year);
     const [currentMonth, setCurrentMonth] = useState(month);
     const [calendarData, setCalendarData] = useState([]);
@@ -10,7 +10,33 @@ const Calendar = ({ year, month }) => {
     const [selectedDate, setSelectedDate] = useState("");
     const [taskList, setTaskList] = useState([]);
     const [isFormVisible, setIsFormVisible] = useState(false);
-    
+        
+    useEffect(() => {
+        window.addEventListener("wheel", handleScroll, { passive: true });
+        return () => {
+            window.removeEventListener("wheel", handleScroll);
+        };
+    }, []);
+
+    // ◆外側クリックでフォーム非表示◆
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            const form = document.getElementById("taskFormForDesign");
+            if (form && !form.contains(event.target)) {
+                setIsFormVisible(false);
+                form.style.display = "none";  // フォームを非表示
+            }
+        };
+        
+        document.addEventListener("click", handleClickOutside);
+        return () => {
+            document.removeEventListener("click", handleClickOutside);
+        };
+    }, []);
+    // ここまで｜外側クリックでフォーム非表示
+
+    // ◆動的にDBからデータ受取◆    
+    // 構造 { 'year':~, 'month':~, 'day_info_and_tasks':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
     useEffect(() => {
         fetchCalendarData();
     }, [currentYear, currentMonth]);
@@ -26,7 +52,9 @@ const Calendar = ({ year, month }) => {
         }
         setIsLoading(false);
     };
+    // ここまで｜動的にDBからデータ受取
 
+    // ◆カレンダー更新◆
     const handleScroll = (event) => {
         if (event.deltaY > 0) {
             setCurrentMonth((prev) => (prev === 12 ? 1 : prev + 1));
@@ -37,29 +65,54 @@ const Calendar = ({ year, month }) => {
         }
     };
 
-    useEffect(() => {
-        window.addEventListener("wheel", handleScroll, { passive: true });
-        return () => {
-            window.removeEventListener("wheel", handleScroll);
-        };
-    }, []);
+    // ◆日付セルをクリックでフォーム生成◆
+    const handleCellClick = (event, date, tasks) => {
+        if (!date || !event) return;
 
-    const handleCellClick = (date, tasks) => {
-        if (!date) return;
-        console.log("Cell clicked: ", date);
+        event.stopPropagation();
+
         setSelectedDate(date);
         setTaskList(tasks || []);
         setIsFormVisible(true);
+
+        // 既存のタスクをフォームに表示
+        const existingTasks = tasks.map(task => task.task).join("\n");
+        setNewTask(existingTasks);
+
+        // クリックしたセルの位置を取得
+        const rect = event.currentTarget.getBoundingClientRect();
+
+        setTimeout(() => {
+            const form = document.getElementById("taskFormForDesign");
+
+            if (form) {
+                form.style.left = `${rect.left + window.scrollX}px`;  // セルの左位置
+                form.style.top = `${rect.bottom + window.scrollY}px`; // セルの下に表示
+                form.style.display = "block";  // 表示する
+            }
+        }, 0);
     };
 
-    const handleTaskSubmit = async (event) => {
+    // ◆タスク内容を保存◆
+    const saveTaskSubmit = async (event) => {
         event.preventDefault();
         if (!selectedDate || !newTask.trim()) return;
+
+        // 既存のタスクリストを取得し、チェック状況も保持
+        const formattedTasks = newTask.split("\n")
+            .map(task => task.trim()) // トリムして余分な空白を削除
+            .filter(task => task !== "") // 空のタスクを除外
+            .flatMap(task => ({
+                date: selectedDate,
+                task: task,
+                is_checked: taskStates[`${selectedDate}-${task}`] ?? false
+        }));
+
         try {
             await fetch("/taskmanage/save-tasks/", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ date: selectedDate, task: newTask, is_checked: false })
+                body: JSON.stringify(formattedTasks)
             });
             setNewTask("");
             setIsFormVisible(false);
@@ -69,6 +122,27 @@ const Calendar = ({ year, month }) => {
         }
     };
 
+    // ◆チェック状況の保存◆
+    // [`${date}-${task}`]により、タスクごとの管理が可能に
+    // ...taskStates：既存のタスク状況も保持
+    const handleTaskChange = async (date, task, is_checked) => {
+        // taskStatesにis_checkedという値を追加
+        const updatedTaskStates = { ...taskStates, [`${date}-${task}`]: is_checked };
+        setTaskStates(updatedTaskStates);
+    
+        try {
+            await fetch("/taskmanage/save-value-change/", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ date, task, is_checked })
+            });
+        } catch (error) {
+            console.error("Error updating task status:", error);
+        }
+    };
+    
+
+    // ◆html要素を描画◆
     return (
         <>
         <h1 id="calendar-title">{currentYear}年 {currentMonth}月</h1>
@@ -82,32 +156,32 @@ const Calendar = ({ year, month }) => {
                 <tbody>
                     {Array.from({ length: Math.ceil(calendarData.length / 7) }).map((_, rowIndex) => (
                         <tr key={rowIndex}>
-                            {calendarData.slice(rowIndex * 7, (rowIndex + 1) * 7).map((day, index) => (
+                            {calendarData.slice(rowIndex * 7, (rowIndex + 1) * 7).map((dayInfo, index) => (
                                 <td key={index} className={`
-                                    ${day.is_holiday ? 'holiday' : ''} 
+                                    ${dayInfo.is_holiday ? 'holiday' : ''} 
                                     ${index % 7 === 0 ? 'sunday' : ''} 
                                     ${(index + 1) % 7 === 0 ? 'saturday' : ''}`.trim()}
-                                    onClick={() => handleCellClick(`${currentYear}-${currentMonth}-${day.day}`, day.tasks)}>
-                                    {day.day && (
+                                    onDoubleClick={(e) => handleCellClick(e, `${currentYear}-${currentMonth}-${dayInfo.day}`, dayInfo.tasks)}>
+                                    {dayInfo.day && (
                                         <>
-                                            <div className="date">{day.day}</div>
-                                            {day.is_holiday && <div className="holiday-name">{day.holiday_name}</div>}
-                                            {day.tasks && (
-                                                <ul>
-                                                    {day.tasks.map((task, tIndex) => (
-                                                        <li key={tIndex}>
-                                                            <input 
-                                                                type="checkbox"
-                                                                className="task-checkbox"
-                                                                name="checking"
-                                                                checked={taskStates[`${currentYear}-${currentMonth}-${day.day}-${task.task}`] ?? task.is_checked}
-                                                                onChange={(e) => handleTaskChange(`${currentYear}-${currentMonth}-${day.day}`, task.task, e.target.checked)}
-                                                            />
-                                                            <span>{task.task}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
+                                        <div className="date">{dayInfo.day}</div>
+                                        {dayInfo.is_holiday && <div className="holiday-name">{dayInfo.holiday_name}</div>}
+                                        {dayInfo.tasks && (
+                                            <ul>
+                                                {dayInfo.tasks.map((taskInfo, tIndex) => (
+                                                    <li key={tIndex}>
+                                                        <input 
+                                                            type="checkbox"
+                                                            className="task-checkbox"
+                                                            name="checking"
+                                                            checked={taskStates[`${currentYear}-${currentMonth}-${dayInfo.day}-${taskInfo.task}`] ?? taskInfo.is_checked}
+                                                            onChange={(e) => handleTaskChange(`${currentYear}-${currentMonth}-${dayInfo.day}`, taskInfo.task, e.target.checked)}
+                                                        />
+                                                        <span>{taskInfo.task}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
                                         </>
                                     )}
                                 </td>
@@ -118,11 +192,13 @@ const Calendar = ({ year, month }) => {
             </table>
             {isFormVisible && (
                 <div id="taskFormForDesign">
-                    <form id="taskForm" onSubmit={handleTaskSubmit}>
+                    <form id="taskForm" onSubmit={saveTaskSubmit}>
                         <input type="hidden" id="taskDate" name="date" value={selectedDate || ""} />
                         <textarea id="taskInput" name="task" placeholder="タスクを入力" value={newTask} onChange={(e) => setNewTask(e.target.value)}></textarea>
-                        <button type="submit">保存</button>
-                        <button type="button" id="cancelButton" onClick={() => setIsFormVisible(false)}>キャンセル</button>
+                        <button type="submit" id="submitButton">保存</button>
+                        <button type="button" id="cancelButton"
+                            onClick={() => {setIsFormVisible(false);}
+                            }>キャンセル</button>
                     </form>
                 </div>
             )}
