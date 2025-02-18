@@ -140,13 +140,6 @@ class CalendarView(GuestAllowedLoginRequiredMixin, View, CalendarBassView):
                 "year": year,
                 "month": month,
             })
-        elif view_type == "react":
-            return render(request, 'taskmanage/calendar_2.html', {
-                'day_info_and_tasks': day_info_and_tasks,
-                'username': request.user.username,
-                'year': year,
-                'month': month,
-            })        
         else:  # カレンダー描画
             print("view_typeが未指定のため、renderで出力")
             # html：テンプレートファイル、その後に渡すデータ(辞書型)を記述

@@ -5,6 +5,7 @@ const Calendar = ({ year, month }) => {
     const [currentMonth, setCurrentMonth] = useState(month);
     const [calendarData, setCalendarData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
     const [taskStates, setTaskStates] = useState({});
     const [newTask, setNewTask] = useState("");
     const [selectedDate, setSelectedDate] = useState("");
@@ -20,20 +21,21 @@ const Calendar = ({ year, month }) => {
     }, []);
     
     const handleScroll = (event) => {
-        if (event.target.closest("#taskInput")) return; // taskInputにフォーカスがある場合は処理を中止
+        if (event.target.closest("#taskInput")) return;
+        setIsFormVisible(false);
+    
+        setCurrentMonth((m) => {
+            const nextMonth = event.deltaY > 0 ? (m === 12 ? 1 : m + 1) : (m === 1 ? 12 : m - 1);
+            setCurrentYear((y) => (
+                m === 12 && event.deltaY > 0 
+                ? y + 1 
+                : (m === 1 && event.deltaY < 0 ? y - 1 : y)
+            ));
+            return nextMonth;
+        });
+    };    
 
-        setIsFormVisible(false); // カレンダースクロール時にフォームを非表示
-
-        if (event.deltaY > 0) {
-            setCurrentMonth((prev) => (prev === 12 ? 1 : prev + 1));
-            setCurrentYear((prev) => (prev === 12 ? prev + 1 : prev));
-        } else {
-            setCurrentMonth((prev) => (prev === 1 ? 12 : prev - 1));
-            setCurrentYear((prev) => (prev === 1 ? prev - 1 : prev));
-        }
-    };
-
-    // タスクがスクロール可能ならカレンダー更新を無効化
+    // ◆タスクがスクロール可能ならカレンダー更新を無効化◆
     useEffect(() => {
         const handleWheel = (event) => {
             const scrollableElement  = event.target.closest("ul");
@@ -52,20 +54,39 @@ const Calendar = ({ year, month }) => {
         };
     }, []);    
 
-    // ◆外側クリックでフォーム非表示◆
-    useEffect(() => {
+    // ◆フォーム非表示の管理◆
+    useEffect(() => {    
+        const handleMouseDown = (event) => {
+            const form = document.getElementById("taskFormForDesign");
+            if (form && form.contains(event.target)) {
+                setIsDragging(true); // フォーム内でマウスを押したらドラッグ開始                
+            }
+        };
+    
+        const handleMouseUp = () => {
+            setIsDragging(false); // マウスを離したらドラッグ終了
+        };
+    
         const handleClickOutside = (event) => {
             const form = document.getElementById("taskFormForDesign");
-            if (form && !form.contains(event.target)) {
-                setIsFormVisible(false);
-                form.style.display = "none";  // フォームを非表示
-            }
-        };        
-        document.addEventListener("click", handleClickOutside);
+    
+            if (!form || form.contains(event.target) || isDragging) return;
+    
+            setIsFormVisible(false);
+            form.style.display = "none"; // フォームを非表示
+        };
+    
+        document.addEventListener("mousedown", handleMouseDown);
+        document.addEventListener("mouseup", handleMouseUp);
+        document.addEventListener("mousedown", handleClickOutside);
+    
         return () => {
+            document.removeEventListener("mousedown", handleMouseDown);
+            document.removeEventListener("mouseup", handleMouseUp);
             document.removeEventListener("click", handleClickOutside);
         };
-    }, []);
+    }, [isDragging]); // isDragging の変更を監視
+    
 
     // ◆動的にDBからデータ受取◆    
     // 構造 { 'year':~, 'month':~, 'day_info_and_tasks':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
@@ -88,7 +109,7 @@ const Calendar = ({ year, month }) => {
 
     // ◆日付セルをクリックでフォーム生成◆
     const handleCellClick = (event, date, tasks) => {
-        if (!date || !event) return;
+        if (!date || !event || date.includes("null")) return;
 
         event.stopPropagation();
 
@@ -105,12 +126,21 @@ const Calendar = ({ year, month }) => {
 
         setTimeout(() => {
             const form = document.getElementById("taskFormForDesign");
+            const input = document.getElementById("taskInput");
 
-            if (form) {
-                form.style.left = `${rect.left + window.scrollX}px`;  // セルの左位置
-                form.style.top = `${rect.bottom + window.scrollY}px`; // セルの下に表示
-                form.style.display = "block";  // 表示する
-            }
+            if (!form) return;
+            form.style.display = "block";  // noneのままだと位置が取得できない
+
+            const rawLeft = rect.left + window.scrollX;
+            const rawTop = rect.bottom + window.scrollY;
+
+            const left = Math.min(rawLeft, window.innerWidth - form.offsetWidth - 10);
+            const top = Math.min(rawTop, window.innerHeight - form.offsetHeight - 20);
+
+            form.style.left = `${Math.max(10, left)}px`;  // 10pxのマージンを確保
+            form.style.top = `${Math.max(10, top)}px`;            
+
+            if (input) {input.focus()};  // フォームが開いたら入力エリアにフォーカス
         }, 0);
     };
 
