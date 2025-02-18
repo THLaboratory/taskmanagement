@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const Calendar = ({ year, month, username }) => {
+const Calendar = ({ year, month }) => {
     const [currentYear, setCurrentYear] = useState(year);
     const [currentMonth, setCurrentMonth] = useState(month);
     const [calendarData, setCalendarData] = useState([]);
@@ -20,6 +20,10 @@ const Calendar = ({ year, month, username }) => {
     }, []);
     
     const handleScroll = (event) => {
+        if (event.target.closest("#taskInput")) return; // taskInputにフォーカスがある場合は処理を中止
+
+        setIsFormVisible(false); // カレンダースクロール時にフォームを非表示
+
         if (event.deltaY > 0) {
             setCurrentMonth((prev) => (prev === 12 ? 1 : prev + 1));
             setCurrentYear((prev) => (prev === 12 ? prev + 1 : prev));
@@ -32,7 +36,7 @@ const Calendar = ({ year, month, username }) => {
     // タスクがスクロール可能ならカレンダー更新を無効化
     useEffect(() => {
         const handleWheel = (event) => {
-            const scrollableElement  = event.target.closest("ul, #taskInput");
+            const scrollableElement  = event.target.closest("ul");
             if (!scrollableElement ) return;
     
             // スクロール可能か判定
@@ -46,10 +50,7 @@ const Calendar = ({ year, month, username }) => {
         return () => {
             document.removeEventListener("wheel", handleWheel);
         };
-    }, []);
-    
-    
-    
+    }, []);    
 
     // ◆外側クリックでフォーム非表示◆
     useEffect(() => {
@@ -155,8 +156,7 @@ const Calendar = ({ year, month, username }) => {
         } catch (error) {
             console.error("Error saving task:", error);
         }
-    };
-    
+    };    
 
     // ◆チェック状況の保存◆
     // [`${date}-${task}`]により、タスクごとの管理が可能に
@@ -176,8 +176,7 @@ const Calendar = ({ year, month, username }) => {
         } catch (error) {
             console.error("Error updating task status:", error);
         }
-    };
-    
+    };    
 
     // ◆html要素を描画◆
     return (

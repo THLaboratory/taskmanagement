@@ -50,8 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const root = ReactDOM.createRoot(reactRoot);
             root.render(
                 <React.StrictMode>
-                    {viewType === "calendar" && 
-                        <Calendar year={year} month={month} username={username} />}
+                    {viewType === "calendar" && <Calendar year={year} month={month} />}
                     {viewType === "time_record" && (
                         <TimeRecords 
                             initialData={filteredDayInfo}
