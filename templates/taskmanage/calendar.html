@@ -9,85 +9,14 @@
 <!-- パーセントかっこの条件文はdjangoによるもの -->
 
 {% block body %}
-<h1 id="calendar-title">{{ year }}年 {{ month }}月 no react</h1>
-<div class="calendar-container">
-    <table class="calendar">
-        <thead>
-            <tr>
-                <th>Sun</th>
-                <th>Mon</th>
-                <th>Tue</th>
-                <th>Wed</th>
-                <th>Thu</th>
-                <th>Fri</th>
-                <th>Sat</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                {% for day in day_info_and_tasks %}
-                    <td class="
-                        {% if day.day %}
-                            {% if day.is_holiday %}holiday{% endif %}
-                            {% if forloop.counter0|divisibleby:7 %}sunday{% endif %}
-                            {% if forloop.counter0|add:1|divisibleby:7 %}saturday{% endif %}
-                        {% endif %}  
-                    ">
-                        {% if day.day %}
-                        <!-- 日付がある場合 -->
-                            <div class="date">{{ day.day }}</div>
-                            {% if day.is_holiday %}
-                                <div class="holiday-name">{{ day.holiday_name }}</div>
-                            {% endif %}
-                            {% if day.tasks %}
-                                <ul>
-                                    {% for task in day.tasks %}                                        
-                                        <li>
-                                            <!-- djangoのhtmlのif文は常にtrue -->
-                                            {% if task.is_checked %}
-                                                <input type="checkbox" class="task-checkbox" name="checking" checked>
-                                                <span>{{ task.task }}</span>
-                                            {% else %}
-                                                <input type="checkbox" class="task-checkbox" name="checking">
-                                                <span>{{ task.task }}</span>
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        {% else %}
-                            <!-- 日付がない（空白セルの場合） -->
-                            &nbsp;
-                        {% endif %}
-                    </td>
-                    {% if forloop.counter|divisibleby:7 %}
-            </tr><tr>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
-</div>
+<!-- csrfトークン取得用。どこに置いてもよい -->
+<meta name="csrf-token" content="{{ csrf_token }}">
 
-<div id="countCheck">
+<!-- react読み込み -->
+<div id="react-root"
+    data-view="calendar"
+    data-year='{{ year }}'
+    data-month='{{ month }}'>
 </div>
-
-<div id="taskFormForDesign">
-    <form id="taskForm">
-        {% csrf_token %}
-        <input type="hidden" id="taskDate" name="date">
-        <textarea id="taskInput" name="task" placeholder="タスクを入力"></textarea>
-        <button type="submit">保存</button>
-        <button type="button" id="cancelButton">キャンセル</button>
-    </form>
-</div>
-
-<!-- JavaScriptの読み込み -->
-<script>
-    const djangoData = {
-        year: "{{ year }}",
-        month: "{{ month }}"
-    };
-</script>
-<script src="{% static 'taskmanage/js/calendar.js' %}?v=1" defer></script>
+<script src="{% static 'bundle.js' %}"></script>
 {% endblock %}
