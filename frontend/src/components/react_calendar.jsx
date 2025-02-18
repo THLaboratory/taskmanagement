@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const Calendar = ({ year, month, username }) => {
+const Calendar = ({ year, month, username }) => {
     const [currentYear, setCurrentYear] = useState(year);
     const [currentMonth, setCurrentMonth] = useState(month);
     const [calendarData, setCalendarData] = useState([]);
@@ -94,6 +95,27 @@ const Calendar = ({ year, month, username }) => {
         setSelectedDate(date);
         setTaskList(tasks || []);
         setIsFormVisible(true);
+
+        // 既存のタスクをフォームに表示
+        const existingTasks = tasks.map(task => task.task).join("\n");
+        setNewTask(existingTasks);
+
+        // クリックしたセルの位置を取得
+        const rect = event.currentTarget.getBoundingClientRect();
+
+        setTimeout(() => {
+            const form = document.getElementById("taskFormForDesign");
+
+            if (form) {
+                form.style.left = `${rect.left + window.scrollX}px`;  // セルの左位置
+                form.style.top = `${rect.bottom + window.scrollY}px`; // セルの下に表示
+                form.style.display = "block";  // 表示する
+            }
+        }, 0);
+    };
+
+    // ◆タスク内容を保存◆
+    const saveTaskSubmit = async (event) => {
 
         // 既存のタスクをフォームに表示
         const existingTasks = tasks.map(task => task.task).join("\n");
