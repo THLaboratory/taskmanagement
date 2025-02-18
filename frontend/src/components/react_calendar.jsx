@@ -10,13 +10,46 @@ const Calendar = ({ year, month, username }) => {
     const [selectedDate, setSelectedDate] = useState("");
     const [taskList, setTaskList] = useState([]);
     const [isFormVisible, setIsFormVisible] = useState(false);
-        
+    
+    // ◆スクロールでカレンダー更新◆
     useEffect(() => {
         window.addEventListener("wheel", handleScroll, { passive: true });
         return () => {
             window.removeEventListener("wheel", handleScroll);
         };
     }, []);
+    
+    const handleScroll = (event) => {
+        if (event.deltaY > 0) {
+            setCurrentMonth((prev) => (prev === 12 ? 1 : prev + 1));
+            setCurrentYear((prev) => (prev === 12 ? prev + 1 : prev));
+        } else {
+            setCurrentMonth((prev) => (prev === 1 ? 12 : prev - 1));
+            setCurrentYear((prev) => (prev === 1 ? prev - 1 : prev));
+        }
+    };
+
+    // タスクがスクロール可能ならカレンダー更新を無効化
+    useEffect(() => {
+        const handleWheel = (event) => {
+            const scrollableElement  = event.target.closest("ul, #taskInput");
+            if (!scrollableElement ) return;
+    
+            // スクロール可能か判定
+            const canScroll = scrollableElement .scrollHeight > scrollableElement .clientHeight;
+    
+            if (canScroll) {
+                event.stopPropagation(); // カレンダー全体のスクロールを防ぐ
+            }
+        };    
+        document.addEventListener("wheel", handleWheel, { passive: false });    
+        return () => {
+            document.removeEventListener("wheel", handleWheel);
+        };
+    }, []);
+    
+    
+    
 
     // ◆外側クリックでフォーム非表示◆
     useEffect(() => {
@@ -26,14 +59,12 @@ const Calendar = ({ year, month, username }) => {
                 setIsFormVisible(false);
                 form.style.display = "none";  // フォームを非表示
             }
-        };
-        
+        };        
         document.addEventListener("click", handleClickOutside);
         return () => {
             document.removeEventListener("click", handleClickOutside);
         };
     }, []);
-    // ここまで｜外側クリックでフォーム非表示
 
     // ◆動的にDBからデータ受取◆    
     // 構造 { 'year':~, 'month':~, 'day_info_and_tasks':[{"day": ~,  "is_holiday": ~, "holiday_name": ~, "tasks": ["task": ~, "is_checked: ~"]}, {~}] } 
@@ -53,17 +84,6 @@ const Calendar = ({ year, month, username }) => {
         setIsLoading(false);
     };
     // ここまで｜動的にDBからデータ受取
-
-    // ◆カレンダー更新◆
-    const handleScroll = (event) => {
-        if (event.deltaY > 0) {
-            setCurrentMonth((prev) => (prev === 12 ? 1 : prev + 1));
-            setCurrentYear((prev) => (prev === 12 ? prev + 1 : prev));
-        } else {
-            setCurrentMonth((prev) => (prev === 1 ? 12 : prev - 1));
-            setCurrentYear((prev) => (prev === 1 ? prev - 1 : prev));
-        }
-    };
 
     // ◆日付セルをクリックでフォーム生成◆
     const handleCellClick = (event, date, tasks) => {
@@ -96,24 +116,39 @@ const Calendar = ({ year, month, username }) => {
     // ◆タスク内容を保存◆
     const saveTaskSubmit = async (event) => {
         event.preventDefault();
-        if (!selectedDate || !newTask.trim()) return;
-
-        // 既存のタスクリストを取得し、チェック状況も保持
-        const formattedTasks = newTask.split("\n")
-            .map(task => task.trim()) // トリムして余分な空白を削除
-            .filter(task => task !== "") // 空のタスクを除外
-            .flatMap(task => ({
-                date: selectedDate,
-                task: task,
-                is_checked: taskStates[`${selectedDate}-${task}`] ?? false
+        if (!selectedDate) return;
+    
+        // 入力されているタスクを取得
+        const inputTasks = newTask.split("\n")
+            .map(task => task.trim())
+            .filter(task => task !== "");
+    
+        // 既存のタスクのリスト
+        const existingTasks = taskList.map(task => task.task);
+    
+        // 削除されたタスク（既存にあって、新しい入力にないもの）
+        const deletedTasks = existingTasks.filter(task => !inputTasks.includes(task));
+    
+        // サーバーへ送信するデータ
+        const formattedTasks = inputTasks.map(task => ({
+            date: selectedDate,
+            task: task,
+            is_checked: taskStates[`${selectedDate}-${task}`] ?? false
         }));
-
+    
         try {
             await fetch("/taskmanage/save-tasks/", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formattedTasks)
+                body: JSON.stringify({
+                    tasks: formattedTasks,
+                    deletedTasks: deletedTasks.map(task => ({
+                        date: selectedDate,
+                        task: task
+                    }))
+                })
             });
+    
             setNewTask("");
             setIsFormVisible(false);
             fetchCalendarData();
@@ -121,6 +156,7 @@ const Calendar = ({ year, month, username }) => {
             console.error("Error saving task:", error);
         }
     };
+    
 
     // ◆チェック状況の保存◆
     // [`${date}-${task}`]により、タスクごとの管理が可能に
@@ -136,6 +172,7 @@ const Calendar = ({ year, month, username }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ date, task, is_checked })
             });
+            fetchCalendarData();  // これがないとカレンダー更新時にちらつく
         } catch (error) {
             console.error("Error updating task status:", error);
         }

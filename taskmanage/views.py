@@ -165,11 +165,17 @@ class SaveTasks(GuestAllowedLoginRequiredMixin, View):
     def post(self, request):
         if request.method == "POST":            
             jsonData = json.loads(request.body)
-            if not isinstance(jsonData, list):
+            tasks = jsonData.get("tasks", [])
+            deletedTasks = jsonData.get("deletedTasks", [])
+
+            if not isinstance(tasks, list) or not isinstance(deletedTasks, list):
                 return JsonResponse({"error": "Invalid data format"}, status=400)
 
             user_instance = request.user
-            task_objects = [Task(user=user_instance, date=item["date"], task=item["task"], is_checked=item["is_checked"]) for item in jsonData]
+            task_objects = [
+                Task(user=user_instance, date=item["date"], task=item["task"], is_checked=item["is_checked"])
+                for item in tasks
+            ]
 
             with transaction.atomic():
                 for task in task_objects:
@@ -177,49 +183,11 @@ class SaveTasks(GuestAllowedLoginRequiredMixin, View):
                         user=task.user, date=task.date, task=task.task,
                         defaults={"is_checked": task.is_checked}
                     )
+                # タスク削除
+                for item in deletedTasks:
+                    Task.objects.filter(user=user_instance, date=item["date"], task=item["task"]).delete()
 
-            return JsonResponse({"message": "Tasks saved!", "saved_tasks": jsonData})
-
-            if not isinstance(gotten_jsonData, list):
-                gotten_jsonData = [gotten_jsonData]
-            
-            for jsonData in gotten_jsonData:
-                DATE = jsonData.get("date")
-                task_and_check = jsonData.get("task_and_check")
-                print("task_and_check")
-                print(task_and_check)
-
-                TASK = task_and_check.task
-                is_checked = task_and_check.is_checked
-
-                task_list = [t.strip() for t in TASK.splitlines() if t.strip() != ""]                
-
-                if not DATE:
-                    return JsonResponse({"status": "error", "message": "Missing required DATE"}, status=400)
-
-                with transaction.atomic():
-                    Task.objects.filter(date=DATE).delete()  # 既存タスクを消去
-
-                    # タスクデータが空の場合、全タスクを削除
-                    if not TASK:
-                        return JsonResponse({"message": "All tasks cleared successfully!"})
-
-                    # タスクの行ごとに作成                    
-                    tasks = []
-                    for t in task_list:
-                        is_checked = False
-                        selected_data = Task.objects.filter(date=DATE, task=t).first()
-                        if selected_data:
-                            is_checked = selected_data.is_checked
-                        tasks.append(Task(user=user, date=DATE, task=t, is_checked=is_checked))
-
-                    # bulk_create(): 複数データを一気に保存
-                    Task.objects.bulk_create(tasks)
-
-            return JsonResponse({
-                "message": "Tasks saved successfully!",
-                "saved_tasks": [{"task": t.task, "is_checked": t.is_checked} for t in tasks]
-            })
+            return JsonResponse({"message": "Tasks saved!", "saved_tasks": tasks})
         else:
             # 他のHTTPメソッドは許可しない
             return JsonResponse({'error': 'Method not allowed'}, status=405)
