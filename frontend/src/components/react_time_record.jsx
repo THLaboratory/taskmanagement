@@ -23,18 +23,6 @@ const TimeRecords = ({ initialData, allStudyData, year, month, username }) => {
         window.location.href = newURL;
     };
 
-    // ◆月の合計勉強時間（画面右下に表示）◆
-    const totalStudyTime = calendarData.reduce((total, data) => {
-        const [hours, minutes] = data.study_time.split(':').map(Number);
-        return total + hours + minutes / 60;
-    }, 0);
-
-    // ◆今までの総勉強時間（画面右下に表示）◆
-    const totalAllTime = allData.reduce((total, data) => {
-        const [hours, minutes] = data.study_time.split(':').map(Number);
-        return total + hours + minutes / 60;
-    }, 0);
-
     // ◆DBにデータ送信＋保存◆
     async function savingData(formData, day) {
         try {
@@ -145,6 +133,18 @@ const TimeRecords = ({ initialData, allStudyData, year, month, username }) => {
             fill: false,
         }]
     };
+
+    // ◆月の合計勉強時間（画面右下に表示）◆
+    const totalStudyTime = calendarData.reduce((total, data) => {
+        const [hours, minutes] = data.study_time.split(':').map(Number);
+        return total + hours + minutes / 60;
+    }, 0);
+
+    // ◆今までの総勉強時間（画面右下に表示）◆
+    const totalAllTime = allData.reduce((total, data) => {
+        const [hours, minutes] = data.study_time.split(':').map(Number);
+        return total + hours + minutes / 60;
+    }, 0);
 
     return (
         <>
