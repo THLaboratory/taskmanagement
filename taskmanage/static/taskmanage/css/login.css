@@ -1,7 +1,0 @@
-@charset "utf-8";
-
-#login-form {
-    letter-spacing: 2px;  /* 文字の間隔*/
-    font-family: 'Noto Sans JP', sans-serif;
-    text-align: center; /* 文字を中央揃えにする */
-}
