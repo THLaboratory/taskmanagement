@@ -299,5 +299,3 @@ const Calendar = ({ year, month }) => {
         </>        
     );
 };
-
-export default Calendar;

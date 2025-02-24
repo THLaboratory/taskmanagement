@@ -214,5 +214,3 @@ const TimeRecords = ({ initialData, allStudyData, year, month, username }) => {
         </>
     );
 };
-
-export default TimeRecords;

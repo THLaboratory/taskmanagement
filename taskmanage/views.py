@@ -21,7 +21,7 @@ import json
 # renderはhtmlに変数を渡す
 
 def home(request):
-    return render(request, "taskmanage/index.html")
+    return render(request, "index.html")
 
 # 開発環境のみ CSRF を無効化
 def maybe_exempt(view_func):
