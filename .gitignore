@@ -5,8 +5,5 @@ db.sqlite3
 *.log
 .env
 /staticfiles/
-/static/*
-!static/taskmanage/
-!static/taskmanage/css/
-!static/taskmanage/js/
+/taskmanage/static/
 taskmanage-key-pair.pem
