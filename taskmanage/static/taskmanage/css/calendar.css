@@ -172,3 +172,19 @@ td.saturday {
 .task-checkbox + span {
     vertical-align: middle; /* ラベルをチェックボックスと揃える */
 }
+
+.screen-check-container {    
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    text-align: left;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000; /* 前面に固定 */
+    background: #f7f7f7; /* 半透明の背景 */
+    color: rgb(0, 0, 0);
+    padding: 7px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}

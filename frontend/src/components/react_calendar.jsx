@@ -11,6 +11,9 @@ const Calendar = ({ year, month }) => {
     const [selectedDate, setSelectedDate] = useState("");
     const [taskList, setTaskList] = useState([]);
     const [isFormVisible, setIsFormVisible] = useState(false);
+    const [checkedCount, setCheckedCount] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
+
     
     // ◆スクロールでカレンダー更新◆
     useEffect(() => {
@@ -206,8 +209,27 @@ const Calendar = ({ year, month }) => {
         } catch (error) {
             console.error("Error updating task status:", error);
         }
-    };    
+    };
 
+    // ◆月ごとのタスクの完了数/合計数◆
+    useEffect(() => {
+        const checked = calendarData.reduce((sum, dayInfo) => 
+            sum + (dayInfo.tasks 
+                ? dayInfo.tasks.filter(
+                    task => Boolean(task.is_checked)).length
+                : 0), 
+            0  // sumの初期値
+        );
+
+        const total = calendarData.reduce((sum, dayInfo) => 
+            sum + (dayInfo.tasks ? dayInfo.tasks.length : 0), 
+            0
+        );    
+
+        setCheckedCount(checked);
+        setTotalCount(total);
+    }, [calendarData]);
+    
     // ◆html要素を描画◆
     return (
         <>
@@ -268,9 +290,12 @@ const Calendar = ({ year, month }) => {
                     </form>
                 </div>
             )}
+            <div className="screen-check-container">
+                <div className='screen-check'>
+                    タスク完了数: {checkedCount}/{totalCount}
+                </div>
+            </div>
         </div>
         </>        
     );
 };
-
-export default Calendar;
