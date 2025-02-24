@@ -7,6 +7,7 @@ app_name = "taskmanage"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("react-index/", views.react_index, name="react_index"),
     path('api/get_username/', views.get_username, name='get_username'),
     path("guest-login/", views.guest_login, name="guest_login"),
     path("guest-logout/", views.guest_logout, name="guest_logout"),

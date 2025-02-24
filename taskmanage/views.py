@@ -65,6 +65,12 @@ class IndexView(GuestAllowedLoginRequiredMixin, View):
         ).strftime("%Y年%m月%d日 %H:%M:%S")
         return render(
             request, "taskmanage/index.html", {"datetime_now": datetime_now})
+    
+
+# React用
+class ReactIndexView(GuestAllowedLoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, "taskmanage/react_index.html")
  
 
 # カレンダーの土台。クラス継承で渡す
@@ -322,6 +328,7 @@ get_username = GetUsername.as_view()
 guest_login = GuestLoginView.as_view()
 guest_logout = GuestLogoutView.as_view()
 index = IndexView.as_view()
+react_index = ReactIndexView.as_view()
 page_cal = CalendarView.as_view()
 save_tasks = SaveTasks.as_view()
 save_value_change = SaveValueChange.as_view()
