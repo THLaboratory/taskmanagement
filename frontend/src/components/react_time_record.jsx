@@ -53,20 +53,34 @@ const TimeRecords = ({ initialData, allStudyData, year, month, username }) => {
     }
 
     // ◆画面上の即時更新◆
-    const handleEdit = (day, studyTime) => {
-        setEditingDay(day);
-        setInputValue(studyTime);
-    };
-
+    useEffect(() => {
+        if (editingDay !== null) {
+            const studyTime = calendarData.find(item => item.day === editingDay)?.study_time || '00:00';
+            const formattedTime = studyTime
+                .split(':')
+                .map(num => num.padStart(2, '0'))
+                .join(':');
+                
+            setInputValue(formattedTime);
+            console.log("formattedTime:", formattedTime);
+        }
+    }, [editingDay, calendarData]);
+    
     // ◆フォーカスが無くなったら保存◆
     const handleBlur = async (day) => {
         if (!inputValue) return;
+
+        // 勉強時間のフォーマット統一（XX:YY）
+        const formattedTime = inputValue
+            .split(':')
+            .map(num => num.padStart(2, '0'))
+            .join(':');
 
         const formattedDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const confirmedFormData = {
             user: username,
             date: formattedDate,
-            study_time: inputValue || '00:00',
+            study_time: formattedTime || '00:00',
         };
         
         await savingData(confirmedFormData, day);
@@ -183,7 +197,7 @@ const TimeRecords = ({ initialData, allStudyData, year, month, username }) => {
                                     />
                                 ) : (
                                     <div className={`time-display ${info.study_time === '00:00' ? 'time-zero' : ''}`}
-                                        onDoubleClick={() => handleEdit(info.day, info.study_time)}
+                                        onDoubleClick={() => setEditingDay(info.day)}
                                     >
                                         {info.study_time || '入力'}
                                     </div>

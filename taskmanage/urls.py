@@ -1,8 +1,8 @@
 from django.urls import path
 from taskmanage import views
 
-# アプリの名前空間を定義、これで他のアプリと区別できる
-# URLのルートにすべてtaskmanage/が追加される
+# アプリの名前空間を定義
+# {% url 'taskmanage:index' %} で IndexView へのリンクを作れる
 app_name = "taskmanage"
 
 urlpatterns = [

@@ -20,9 +20,6 @@ import json
 # .は相対パス、自身と同じ階層にあるファイルを指す
 # renderはhtmlに変数を渡す
 
-def home(request):
-    return render(request, "taskmanage/index.html")
-
 # 開発環境のみ CSRF を無効化
 def maybe_exempt(view_func):
     if settings.DEBUG:
@@ -53,6 +50,7 @@ class GuestLoginView(View):
 class GuestLogoutView(View):
     def post(self, request):
         if request.user.username == 'guest':
+            print("guestのデータを削除しました")
             request.user.delete()  
         logout(request)
         return redirect('login')
@@ -60,11 +58,7 @@ class GuestLogoutView(View):
 
 class IndexView(GuestAllowedLoginRequiredMixin, View):
     def get(self, request):
-        datetime_now = datetime.now(
-            ZoneInfo("Asia/Tokyo")
-        ).strftime("%Y年%m月%d日 %H:%M:%S")
-        return render(
-            request, "taskmanage/index.html", {"datetime_now": datetime_now})
+        return render(request, "taskmanage/index.html")
     
 
 # React用
