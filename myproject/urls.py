@@ -26,5 +26,5 @@ urlpatterns = [
     path("taskmanage/", include("taskmanage.urls")),
     path('accounts/', include('accounts.urls')),
     path('', include('django.contrib.auth.urls')),
-    path('', views.home, name='home'),
+    path('', views.index, name='index'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

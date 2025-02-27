@@ -1,12 +1,13 @@
 from django.urls import path
 from taskmanage import views
 
-# アプリの名前空間を定義、これで他のアプリと区別できる
-# URLのルートにすべてtaskmanage/が追加される
+# アプリの名前空間を定義
+# {% url 'taskmanage:index' %} で IndexView へのリンクを作れる
 app_name = "taskmanage"
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("react-index/", views.react_index, name="react_index"),
     path('api/get_username/', views.get_username, name='get_username'),
     path("guest-login/", views.guest_login, name="guest_login"),
     path("guest-logout/", views.guest_logout, name="guest_logout"),

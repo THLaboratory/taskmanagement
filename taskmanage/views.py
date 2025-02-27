@@ -20,9 +20,6 @@ import json
 # .は相対パス、自身と同じ階層にあるファイルを指す
 # renderはhtmlに変数を渡す
 
-def home(request):
-    return render(request, "taskmanage/index.html")
-
 # 開発環境のみ CSRF を無効化
 def maybe_exempt(view_func):
     if settings.DEBUG:
@@ -53,6 +50,7 @@ class GuestLoginView(View):
 class GuestLogoutView(View):
     def post(self, request):
         if request.user.username == 'guest':
+            print("guestのデータを削除しました")
             request.user.delete()  
         logout(request)
         return redirect('login')
@@ -60,11 +58,13 @@ class GuestLogoutView(View):
 
 class IndexView(GuestAllowedLoginRequiredMixin, View):
     def get(self, request):
-        datetime_now = datetime.now(
-            ZoneInfo("Asia/Tokyo")
-        ).strftime("%Y年%m月%d日 %H:%M:%S")
-        return render(
-            request, "taskmanage/index.html", {"datetime_now": datetime_now})
+        return render(request, "taskmanage/index.html")
+    
+
+# React用
+class ReactIndexView(GuestAllowedLoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, "taskmanage/react_index.html")
  
 
 # カレンダーの土台。クラス継承で渡す
@@ -322,6 +322,7 @@ get_username = GetUsername.as_view()
 guest_login = GuestLoginView.as_view()
 guest_logout = GuestLogoutView.as_view()
 index = IndexView.as_view()
+react_index = ReactIndexView.as_view()
 page_cal = CalendarView.as_view()
 save_tasks = SaveTasks.as_view()
 save_value_change = SaveValueChange.as_view()
